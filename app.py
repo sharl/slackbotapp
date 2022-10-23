@@ -53,7 +53,7 @@ def process_message(client: SocketModeClient, req: SocketModeRequest):
         response = SocketModeResponse(envelope_id=req.envelope_id)
         client.send_socket_mode_response(response)
 
-        if req.payload["event"]["type"] == "message" and req.payload["event"].get("subtype") is None:
+        if req.payload["event"]["type"] == "message" and req.payload["event"].get("bot_id") is None:
             caches.parse(client, req)
             logger.log(req, caches)
 
@@ -61,7 +61,7 @@ def process_message(client: SocketModeClient, req: SocketModeRequest):
                 if module.startswith('message'):
                     modules[module].call(client, req, options=options[module], caches=caches)
 
-        if req.payload["event"]["type"] == "reaction_added" and req.payload["event"].get("subtype") is None:
+        if req.payload["event"]["type"] == "reaction_added" and req.payload["event"].get("bot_id") is None:
             for module in modules:
                 if module.startswith('reaction_added'):
                     modules[module].call(client, req, options=options[module], caches=caches)
