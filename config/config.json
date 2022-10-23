@@ -1,0 +1,25 @@
+{
+    "name": "hamu",
+    "icon_emoji": ":hamster:",
+    "modules": {
+        "message._help": null,
+        "message.amedas": null,
+        "message.amesh": null,
+        "message.typhoon": null,
+        "message.amehamu": null,
+        "message.yukihamu": null,
+        "message.thunder": null,
+        "message.tenkizu": null,
+        "message.weather": null,
+        "message.stablediffusion": null,
+        "message.switchbot.meter": {
+            "keyword": "室温",
+            "user": "sharl",
+            "token": "47b12c7e42ac8d9ed03445cb7c44427a70aca19d10e8b8e474061cb36ed345d7cc86379e6548f56b211e99ca2be4477c",
+            "device": "E05F42A44713"
+        },
+        "reaction_added.delete_bot_message": {
+            "reaction": "see_no_evil"
+        }
+    }
+}

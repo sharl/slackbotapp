@@ -1,0 +1,11 @@
+services:
+  slackbotapp:
+    container_name: slackbotapp
+    build: ./
+    volumes:
+      - "./config:/home/slackbot/config"
+      - "./output:/home/slackbot/output"
+    environment:
+      AMEDAS:
+      SLACK_APP_TOKEN:
+      SLACK_BOT_TOKEN:
