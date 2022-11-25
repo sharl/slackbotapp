@@ -169,15 +169,17 @@ class call:
                                                 _pops.append(pops[p] + '%')
 
                                         blocks.append({
-                                            'type': 'image',
-                                            'title': {
-                                                'type': 'plain_text',
-                                                'text': '  '.join(_pops),
-                                                'emoji': True
-                                            },
-                                            'image_url': image,
-                                            'alt_text': 'weather'
-                                        })
+			                    "type": "section",
+			                    "text": {
+				                "type": "mrkdwn",
+				                "text": ' '.join(_pops) + '\n' + a['weathers'][j].replace('\u3000', ' ')
+			                    },
+			                    "accessory": {
+				                "type": "image",
+				                "image_url": image,
+				                "alt_text": "weather"
+			                    }
+		                        })
 
                                     # amedas challenge
                                     for a in t['areas']:
