@@ -32,8 +32,8 @@ class Caches:
         # detect channel
         #
         if isinstance(channel_id, str) and channel_id not in self.channel_ids:
-            if channel_id.startswith('C'):
-                # channel
+            if channel_id.startswith('C') or channel_id.startswith('G'):
+                # channel or group im (mpim)
                 chan = client.web_client.conversations_info(channel=channel_id)
                 if chan['ok'] is True:
                     channel_name = chan.get('channel', {}).get('name')
@@ -43,13 +43,6 @@ class Caches:
                 # im
                 user_name = self.user_ids.get(user_id, '???')
                 self.channel_ids[channel_id] = user_name
-            elif channel_id.startswith('G'):
-                # group im (mpim)
-                group = client.web_client.groups_info(channel=channel_id)
-                if group['ok'] is True:
-                    channel_name = group.get('group', {}).get('name')
-                    if channel_name is not None:
-                        self.channel_ids[channel_id] = channel_name
 
             if channel_id not in self.channel_ids:
                 self.channel_ids[channel_id] = channel_id
