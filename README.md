@@ -77,27 +77,53 @@
 
 ## Module usage
 
-### message.switchbot.meter
+### message.switchbot
+
+Switchbot token and secret write to `$HOME`/.switchbot
+
+```
+{
+  "token": "xxxxxxxx",
+  "secret": "yyyyyyyy"
+}
+```
+
+#### message.switchbot.meter
 
 - config.json
 ```
         "message.switchbot.meter": {
-            "keyword": "wake word",
             "user": "user name (NOT display name)",
-            "token": "<developer token>",
-            "device": "<device ID>"
+            "devices": [
+                {
+                    "keyword": "wake word 1",
+                    "device": "<device ID>"
+                },
+                {
+                    "keyword": "wake word 2",
+                    "device": "<device ID>"
+                }
+            ]
         }
 ```
 
-### message.switchbot.plug
+#### message.switchbot.plug
 
 - config.json
 ```
         "message.switchbot.plug": {
-            "on": "on wake word",
-            "off": "off wake word",
             "user": "user name (NOT display name)",
-            "token": "<developer token>",
-            "device": "<device ID>"
+            "devices": [
+                {
+                    "on": "on wake word 1",
+                    "off": "off wake word 1",
+                    "device": "<device ID>"
+                },
+                {
+                    "on": "on wake word 2",
+                    "off": "off wake word 2",
+                    "device": "<device ID>"
+                }
+            ]
         }
 ```
