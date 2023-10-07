@@ -7,6 +7,8 @@ class Caches:
     channel_ids = {}
     # 問い合わせを減らすためのユーザIDキャッシュ
     user_ids = {}
+    # 問い合わせを減らすためのdisplay_nameキャッシュ
+    display_names = {}
 
     username = None
     icon_emoji = None
@@ -24,8 +26,13 @@ class Caches:
             user = client.web_client.users_info(user=user_id)
             if user['ok'] is True:
                 user_name = user.get('user', {}).get('name')
-                if user_name is not None:
+                display_name = user.get('user', {}).get('profile', {}).get('display_name')
+                if user_name:
                     self.user_ids[user_id] = user_name
+                if display_name:
+                    self.display_names[user_id] = display_name
+                else:
+                    self.display_names[user_id] = user_name
 
         channel_id = req.payload.get('event', {}).get('channel')
         #
