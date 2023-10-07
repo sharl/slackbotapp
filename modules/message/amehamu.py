@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import xml.etree.ElementTree as ET
+import re
+import json
 from urllib.parse import quote
 
 import requests
@@ -21,20 +22,30 @@ class call:
             if ' ' in loc:
                 loc, zoom = loc.split(' ')
             if not loc:
-                loc = '日本'
-                zoom = '4'
+                loc = '長野県麻績村日'
+                zoom = '3.5'
             loc = loc.strip()
             zoom = zoom.strip()
-            url = 'https://www.geocoding.jp/api/?q=' + quote(loc.encode('utf8'))
-            r = requests.get(url, timeout=10, verify=False)
+            url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
+            user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
+            headers = {
+                'User-Agent': user_agent
+            }
+            r = requests.get(url, headers=headers, timeout=10)
             if r and r.status_code == 200:
-                print(r.text.strip())
-                root = ET.fromstring(r.text)
+                j = json.loads(r.text)
                 lat = None
                 lng = None
-                if root.find('./error') is None and root.find('./result/error') is None:
-                    lat = root.find('./coordinate/lat').text
-                    lng = root.find('./coordinate/lng').text
+                pat = re.compile(r'^.*[都道府県]')
+                if isinstance(j, list) and len(j) > 0:
+                    for p in j:
+                        title = p['properties']['title']
+                        lat = p['geometry']['coordinates'][1]
+                        lng = p['geometry']['coordinates'][0]
+                        m = pat.search(title)
+                        if m:
+                            print(loc, title)
+                            break
 
                 if lat and lng:
                     r = requests.get('https://weather.yahoo.co.jp/weather/zoomradar/?lat={}&lon={}&z={}'.format(lat, lng, zoom))
@@ -43,8 +54,7 @@ class call:
                         og_images = soup.find_all('meta', property="og:image")
                         if len(og_images) == 0:
                             return
-                        img_url = og_images[0].get('content')
-                        print(img_url)
+                        img_url = og_images[0].get('content').replace('600x600', '600x400')
                         client.web_client.chat_postMessage(
                             username=keyword,
                             icon_emoji=caches.icon_emoji,
