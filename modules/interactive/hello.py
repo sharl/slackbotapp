@@ -11,6 +11,19 @@ class call:
                 response = SocketModeResponse(envelope_id=req.envelope_id)
                 client.send_socket_mode_response(response)
 
+                content = 'Hello!'
+                contents = []
+                # read options
+                if isinstance(options, str):
+                    with open(options) as fd:
+                        for line in fd.read().strip().split('\n'):
+                            p = line.split(',')
+                            contents.append(f'{p[0]},:{p[1]}:')
+                if contents:
+                    content = '\n'.join(contents[-10:])
+
+                print(content)
+
                 # Open a welcome modal
                 client.web_client.views_open(
                     trigger_id=req.payload['trigger_id'],
@@ -19,18 +32,14 @@ class call:
                         'callback_id': 'hello-modal',
                         'title': {
                             'type': 'plain_text',
-                            'text': 'Greetings!'
-                        },
-                        'submit': {
-                            'type': 'plain_text',
-                            'text': 'Good Bye'
+                            'text': 'Emojis!'
                         },
                         'blocks': [
                             {
                                 'type': 'section',
                                 'text': {
-                                    'type': 'mrkdwn',
-                                    'text': 'Hello!'
+                                    'type': 'plain_text',
+                                    'text': content,
                                 }
                             }
                         ]
@@ -42,5 +51,3 @@ class call:
                 # Acknowledge the request anyway
                 response = SocketModeResponse(envelope_id=req.envelope_id)
                 client.send_socket_mode_response(response)
-
-                print('view_submission', req.payload)
