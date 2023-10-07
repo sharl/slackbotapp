@@ -6,7 +6,7 @@ class call:
         channel = item['channel']
         thread_ts = item.get('thread_ts')
 
-        if text.strip().replace(' ', '') in ['help&gt;はむ', 'help＞はむ', 'ヘルプ&gt;はむ', 'ヘルプ＞はむ']:
+        if text.strip().replace(' ', '') in ['はむ?', 'はむ？']:
             client.web_client.chat_postMessage(
                 username=caches.username,
                 icon_emoji=caches.icon_emoji,
