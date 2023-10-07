@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import requests
+from . import Switchbot
 
 
 class call:
@@ -10,39 +10,29 @@ class call:
         ts = item.get('ts')
 
         if item.get('bot_id', None) is None:
+            user_id = item.get('user')
+            username = caches.user_ids.get(user_id)
             if isinstance(options, dict):
-                on = options['on']
-                off = options['off']
                 ouser = options['user']
-                user_id = item.get('user')
-                username = caches.user_ids.get(user_id)
-                if (text == on or text == off) and ouser == username:
-                    token = options['token']
-                    device = options['device']
-                    commands = {
-                        on: 'turnOn',
-                        off: 'turnOff',
-                    }
-                    command = commands[text]
+                if ouser != username:
+                    return
 
-                    # https://github.com/OpenWonderLabs/SwitchBotAPI#send-device-control-commands
-                    try:
-                        requests.post('https://api.switch-bot.com/v1.0/devices/{}/commands'.format(device),
-                                      headers={'Authorization': token},
-                                      json={
-                                          'command': command,
-                                          'parameter': 'default',
-                                          'commandType': 'command',
-                                      },
-                                      timeout=10)
+                # plug parameter is 'on' and 'off'
+                for device in options['devices']:
+                    on = device.get('on')
+                    off = device.get('off')
+                    if on and off and (on == text or off == text):
+                        deviceID = device['device']
+                        cmds = {
+                            on: 'on',
+                            off: 'off',
+                        }
+                        sb = Switchbot()
+                        reaction = 'ok' if sb.set_device_power(deviceID, cmds[text]) else 'ng'
+
                         client.web_client.reactions_add(
                             channel=channel,
-                            name='ok',
+                            name=reaction,
                             timestamp=ts,
                         )
-                    except Exception:
-                        client.web_client.reactions_add(
-                            channel=channel,
-                            name='ng',
-                            timestamp=ts,
-                        )
+                        return
