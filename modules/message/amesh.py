@@ -18,7 +18,7 @@ class call:
             client.web_client.files_upload_v2(
                 username=keyword,
                 icon_emoji=caches.icon_emoji,
-                channels=channel,
+                channel=channel,
                 file='/tmp/amesh.png',
                 title='amesh',
                 thread_ts=thread_ts,
