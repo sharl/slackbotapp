@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 class call:
-    """アメダス[観測地点|気温|降水量|積雪深] : アメダスでの現在の情報を表示"""
+    """アメダス[観測地点|気温|降水|積雪] : アメダスでの現在の情報を表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -16,8 +16,8 @@ class call:
 
         urls = {
             '気温': 'https://tenki.jp/amedas/',
-            '降水量': 'https://tenki.jp/amedas/precip.html',
-            '積雪深': 'https://tenki.jp/amedas/snow.html',
+            '降水': 'https://tenki.jp/amedas/precip.html',
+            '積雪': 'https://tenki.jp/amedas/snow.html',
         }
         prefix = 'アメダス'
         if text.startswith(prefix) and item.get('bot_id') is None:
