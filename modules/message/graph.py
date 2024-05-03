@@ -2,6 +2,7 @@
 import datetime as dt
 
 import requests
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
@@ -67,6 +68,10 @@ class call:
                     if time_data:
                         # グラフ描画
                         plt.figure(figsize=[8, 4.5], tight_layout=True)
+                        # 上下左右余白なし
+                        mpl.rcParams['axes.xmargin'] = 0
+                        mpl.rcParams['axes.ymargin'] = 0
+
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
                         if param.startswith('precipitation') or param == 'snow1h':
