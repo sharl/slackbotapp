@@ -4,9 +4,18 @@ import datetime as dt
 import requests
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+
+
+font_prop = FontProperties(fname='/usr/share/fonts/truetype/migmix/migu-1p-regular.ttf')
+mpl.rcParams["font.family"] = font_prop.get_name()
 
 HEAT = 30
 COLD = 0
+
+prefs = {
+    '11': '宗谷地方', '12': '上川・留萌地方', '13': '上川・留萌地方', '14': '石狩・空知・後志地方', '15': '石狩・空知・後志地方', '16': '石狩・空知・後志地方', '17': '網走・北見・紋別地方', '18': '釧路・根室地方', '20': '十勝地方', '21': '胆振・日高地方', '22': '胆振・日高地方', '23': '渡島・檜山地方', '24': '渡島・檜山地方', '31': '青森県', '32': '秋田県', '33': '岩手県', '34': '宮城県', '35': '山形県', '36': '福島県', '40': '茨城県', '41': '栃木県', '42': '群馬県', '43': '埼玉県', '44': '東京都', '45': '千葉県', '46': '神奈川県', '48': '長野県', '49': '山梨県', '50': '静岡県', '51': '愛知県', '52': '岐阜県', '53': '三重県', '54': '新潟県', '55': '富山県', '56': '石川県', '57': '福井県', '60': '滋賀県', '61': '京都府', '62': '大阪府', '63': '兵庫県', '64': '奈良県', '65': '和歌山県', '66': '岡山県', '67': '広島県', '68': '島根県', '69': '鳥取県', '71': '徳島県', '72': '香川県', '73': '愛媛県', '74': '高知県', '81': '山口県', '82': '福岡県', '83': '大分県', '84': '長崎県', '85': '佐賀県', '86': '熊本県', '87': '宮崎県', '88': '鹿児島県（奄美地方除く）', '91': '沖縄本島地方', '92': '大東島地方', '93': '宮古島地方', '94': '八重山地方'
+}
 
 
 class call:
@@ -94,6 +103,13 @@ class call:
                         else:
                             plt.plot(xs, ys)
 
+                        if len(locs) == 1:
+                            title = f'{loc}の{prefix}'
+                        else:
+                            pref = prefs[code[0:2]]
+                            title = f'{loc}({pref})の{prefix}'
+
+                        plt.title(title)
                         plt.grid()
                         plt.xticks([])
 
@@ -109,7 +125,6 @@ class call:
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
 
-                        title = f'{loc}の{prefix}'
                         client.web_client.files_upload_v2(
                             username=title,
                             icon_emoji=caches.icon_emoji,
