@@ -5,6 +5,9 @@ import requests
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+HEAT = 30
+COLD = 0
+
 
 class call:
     """[気温|降水|湿度|気圧|積雪|降雪]<観測地点> : アメダスでの推移をグラフで表示"""
@@ -62,7 +65,7 @@ class call:
                         data = response.json()
 
                         for tim in data.keys():
-                            if param in data[tim]:
+                            if param in data[tim] and data[tim][param][1] == 0:
                                 time_data[tim] = data[tim][param][0]
 
                     if time_data:
@@ -74,18 +77,35 @@ class call:
 
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
+                        _ys = [v for v in ys if v is not None]  # 休止中対応
+                        xmin = min(xs)
+                        xmax = max(xs)
+                        ymin = min(_ys) - 1
+                        ymax = max(_ys) + 1
+
+                        if param == 'humidity':
+                            ymax = 100
+                            ymin = 0
+                        if param == 'snow':
+                            ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
+                            ymin = 0
                             plt.bar(xs, ys)
                         else:
                             plt.plot(xs, ys)
+
                         plt.grid()
                         plt.xticks([])
-                        _ys = [v for v in ys if v is not None]  # 休止中対応
-                        ymin = min(_ys)
-                        ymax = max(_ys) + 1
+
                         for tim in xs:
                             if tim.endswith('000000') or tim.endswith('120000'):
                                 plt.vlines(tim, ymin, ymax, colors='gray', linestyle='dotted')
+
+                        if ymax >= HEAT and param == 'temp':
+                            plt.hlines(HEAT, xmin, xmax, colors='red')
+                        if ymin <= COLD and param == 'temp':
+                            plt.hlines(COLD, xmin, xmax, colors='blue')
+
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
 
