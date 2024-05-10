@@ -10,7 +10,7 @@ from matplotlib.font_manager import FontProperties
 font_prop = FontProperties(fname='/usr/share/fonts/truetype/migmix/migu-1p-regular.ttf')
 mpl.rcParams["font.family"] = font_prop.get_name()
 
-HEAT = 30
+HEAT = 25
 COLD = 0
 
 prefs = {
@@ -49,6 +49,8 @@ class call:
             r = requests.get('https://www.jma.go.jp/bosai/amedas/const/amedastable.json')
             if r and r.status_code == 200:
                 data = r.json()
+                # dirty hack
+                data['67326']['kjName'] = '広島県府中市'
                 locs = []
                 for k in data:
                     for _loc in set(_locs):
@@ -111,16 +113,26 @@ class call:
 
                         plt.title(title)
                         plt.grid()
-                        plt.xticks([])
 
+                        def mmddHHMM(tim):
+                            return f'{tim[4:6]}/{tim[6:8]} {tim[8:10]}:{tim[10:12]}'
+
+                        atim = []
+                        atic = []
                         for tim in xs:
                             if tim.endswith('000000') or tim.endswith('120000'):
                                 plt.vlines(tim, ymin, ymax, colors='gray', linestyle='dotted')
+                                atim.append(tim)
+                                atic.append(mmddHHMM(tim))
+                        atim.append(xs[-1])
+                        atic.append(mmddHHMM(xs[-1]))
+                        plt.xticks(atim, atic)
 
-                        if ymax >= HEAT and param == 'temp':
-                            plt.hlines(HEAT, xmin, xmax, colors='red')
-                        if ymin <= COLD and param == 'temp':
-                            plt.hlines(COLD, xmin, xmax, colors='blue')
+                        if param == 'temp':
+                            if ymax >= HEAT:
+                                plt.hlines(HEAT, xmin, xmax, colors='red')
+                            if ymin <= COLD:
+                                plt.hlines(COLD, xmin, xmax, colors='blue')
 
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
