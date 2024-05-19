@@ -130,8 +130,10 @@ class call:
                         plt.xticks(atim, atic)
 
                         if param == 'temp':
-                            if ymax >= HEAT:
-                                plt.hlines(HEAT, xmin, xmax, colors='red')
+                            for h in [HEAT + 10, HEAT + 5, HEAT]:
+                                if ymax >= h:
+                                    plt.hlines(h, xmin, xmax, colors='red')
+                                    break
                             if ymin <= COLD:
                                 plt.hlines(COLD, xmin, xmax, colors='blue')
 
