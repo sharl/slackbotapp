@@ -62,7 +62,7 @@ class call:
 
                 for code in locs:
                     time_data = {}
-                    for delta in range(9):
+                    for delta in range(16):
                         now = self.now - dt.timedelta(hours=delta * 3) - dt.timedelta(minutes=10)
                         yyyymmdd = now.strftime('%Y%m%d')
                         HH = now.strftime('%H')
