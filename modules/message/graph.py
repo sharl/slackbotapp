@@ -122,7 +122,7 @@ class call:
                         for tim in xs:
                             if tim.endswith('000000') or tim.endswith('120000'):
                                 plt.vlines(tim, ymin, ymax, colors='gray', linestyle='dotted')
-                                if int(xmax) - int(tim) > 40000:        # 4時間?
+                                if int(xmax) - int(tim) > 60000:        # 6時間?
                                     atim.append(tim)
                                     atic.append(mmddHHMM(tim))
                         atim.append(xs[-1])
