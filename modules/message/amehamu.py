@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 import json
 from urllib.parse import quote
 
@@ -8,16 +7,28 @@ from bs4 import BeautifulSoup
 
 
 class call:
-    """あめはむ[地点] : 降水状況を表示"""
+    """あめはむ[地点] : 降水状況を表示
+ゆきはむ[地点] : 降水/降雪状況を表示
+サンダー[地点] : 落雷状況を表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
         channel = item['channel']
         thread_ts = item.get('thread_ts')
 
-        keyword = 'あめはむ'
+        keywords = {
+            'あめはむ': '',
+            'ゆきはむ': 'rainsnow',
+            'サンダー': 'thunder',
+        }
         zoom = '10'
-        if text.startswith(keyword) and item.get('bot_id', None) is None:
+        param = None
+        for keyword in keywords:
+            if text.startswith(keyword):
+                param = keywords[keyword]
+                break
+
+        if param is not None and item.get('bot_id', None) is None:
             loc = text.replace(keyword, '').strip()
             if ' ' in loc:
                 loc, zoom = loc.split(' ')
@@ -36,19 +47,17 @@ class call:
                 j = json.loads(r.text)
                 lat = None
                 lng = None
-                pat = re.compile(r'^.*[都道府県]')
                 if isinstance(j, list) and len(j) > 0:
                     for p in j:
                         title = p['properties']['title']
                         lat = p['geometry']['coordinates'][1]
                         lng = p['geometry']['coordinates'][0]
-                        m = pat.search(title)
-                        if m:
+                        if loc in title:
                             print(loc, title)
                             break
 
                 if lat and lng:
-                    r = requests.get('https://weather.yahoo.co.jp/weather/zoomradar/?lat={}&lon={}&z={}'.format(lat, lng, zoom))
+                    r = requests.get(f'https://weather.yahoo.co.jp/weather/zoomradar/{param}?lat={lat}&lon={lng}&z={zoom}')
                     if r and r.status_code == 200:
                         soup = BeautifulSoup(r.content, 'html.parser')
                         og_images = soup.find_all('meta', property="og:image")
@@ -64,7 +73,7 @@ class call:
                                 {
                                     'type': 'image',
                                     'image_url': img_url,
-                                    'alt_text': text,
+                                    'alt_text': title,
                                 }
                             ],
                             thread_ts=thread_ts,
