@@ -19,7 +19,7 @@ class call:
         keywords = {
             'あめはむ': '',
             'ゆきはむ': 'rainsnow',
-            'サンダー': 'thunder',
+            'サンダー': 'lightning',
         }
         zoom = '10'
         param = None
