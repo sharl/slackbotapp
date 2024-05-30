@@ -17,13 +17,17 @@ class WebClient:
         self.encoder = Encoder()
 
     def chat_postMessage(self, **kwargs):
-        for b in kwargs.get('blocks'):
-            url = b.get('image_url')
-            if url:
-                r = requests.get(url)
-                with tempfile.NamedTemporaryFile(mode='wb') as t:
-                    t.write(r.content)
-                    self.encoder.encode(t.name)
+        print(kwargs.get('text'))
+
+        blocks = kwargs.get('blocks')
+        if blocks:
+            for b in blocks:
+                url = b.get('image_url')
+                if url:
+                    r = requests.get(url)
+                    with tempfile.NamedTemporaryFile(mode='wb') as t:
+                        t.write(r.content)
+                        self.encoder.encode(t.name)
 
     def files_upload_v2(self, **kwargs):
         self.encoder.encode(kwargs.get('file'))
