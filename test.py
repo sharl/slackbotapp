@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 import sys
 import importlib
+import tempfile
 
 from libsixel.encoder import Encoder
+import requests
 
 from modules import Caches
 
@@ -12,14 +14,19 @@ caches = Caches()
 
 class WebClient:
     def __init__(self):
-        pass
+        self.encoder = Encoder()
 
     def chat_postMessage(self, **kwargs):
-        print(kwargs)
+        for b in kwargs.get('blocks'):
+            url = b.get('image_url')
+            if url:
+                r = requests.get(url)
+                with tempfile.NamedTemporaryFile(mode='wb') as t:
+                    t.write(r.content)
+                    self.encoder.encode(t.name)
 
     def files_upload_v2(self, **kwargs):
-        encoder = Encoder()
-        encoder.encode(kwargs.get('file'))
+        self.encoder.encode(kwargs.get('file'))
 
 
 class Client:
