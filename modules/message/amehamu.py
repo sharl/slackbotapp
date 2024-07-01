@@ -33,8 +33,8 @@ class call:
             if ' ' in loc:
                 loc, zoom = loc.split(' ')
             if not loc:
-                loc = '長野県麻績村日'
-                zoom = '3.5'
+                loc = '麻績村'
+                zoom = '4'
             loc = loc.strip()
             zoom = zoom.strip()
             url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
