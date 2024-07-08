@@ -48,11 +48,11 @@ class call:
 
                 # modify message
                 # 35度以上
-                ho = r' [^-](3[5-9]|[4-9].)(\..)?度'
+                ho = r' (3[5-9]|[4-9].)(\..)?度'
                 # 30度以上
-                me = r' [^-](3[0-4])(\..)?度'
+                me = r' (3[0-4])(\..)?度'
                 # 25度以上30度未満
-                te = r' [^-](2[5-9])(\..)?度'
+                te = r' (2[5-9])(\..)?度'
                 # 5度未満
                 mi = r' (-\d+|[0-4])(\..)?度'
                 # 80% 以上
@@ -65,8 +65,8 @@ class call:
                 sn = r'\d\d\dcm'
 
                 emojis = {
-                    ho: ':hot_face:',
-                    me: ':melting_face:',
+                    ho: ':melting_face:',
+                    me: ':hot_face:',
                     te: ':fire:',
                     mi: ':ice_cube:',
                     hu: ':droplet:',
