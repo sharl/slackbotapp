@@ -139,6 +139,7 @@ class call:
 
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
+                        plt.close()
 
                         client.web_client.files_upload_v2(
                             username=title,
