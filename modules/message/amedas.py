@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 
 class call:
-    """アメダス[観測地点|気温|降水|積雪] : アメダスでの現在の情報を表示"""
+    """アメダス[観測地点|気温|降水|積雪|最高気温|最低気温] : アメダスでの現在の情報を表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -44,6 +44,33 @@ class call:
                         thread_ts=thread_ts,
                     )
             else:
+                _keys = {
+                    '最高気温': 0,
+                    '最低気温': 1,
+                }
+                base_url = 'https://www.data.jma.go.jp/stats/data/mdrr/rank_daily/'
+
+                for key in _keys:
+                    if loc == key:
+                        r = requests.get(base_url)
+                        if r and r.status_code == 200:
+                            soup = BeautifulSoup(r.content, 'html.parser')
+                            uls = soup.find_all('ul')
+                            a = uls[4].find('a')
+                            r = requests.get(base_url + a['href'])
+                            if r and r.status_code == 200:
+                                soup = BeautifulSoup(r.content, 'html.parser')
+                                tbl = soup.find_all('table')[_keys[key]]
+                                trs = tbl.find_all('tr')
+                                locs = []
+                                for tr in trs[2:5]:
+                                    tds = tr.find_all('td')
+                                    m = re.match(r'^(.*?)（', tds[3].text)
+                                    if m:
+                                        locs.append(m[1])
+                                loc = ' '.join(locs)
+                                break
+
                 amedas = subprocess.check_output(['amedas', loc]).decode('utf8').strip()
 
                 # modify message
