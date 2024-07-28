@@ -69,11 +69,12 @@
 
 ## How to run
 
-  $ pip install -U -r requirements.txt
-
-  $ export SLACK_APP_TOKEN=xapp-..............
-  $ export SLACK_BOT_TOKEN=xoxb-..............
-  $ ./app.py
+```
+$ pip install -U -r requirements.txt
+$ export SLACK_APP_TOKEN=xapp-..............
+$ export SLACK_BOT_TOKEN=xoxb-..............
+$ ./app.py
+```
 
 ## Module usage
 
