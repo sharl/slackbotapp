@@ -33,7 +33,7 @@ class call:
                         soup = BeautifulSoup(r.content, 'html.parser')
                         div = soup.find('div', class_='tabView_content_image')
                         client.web_client.chat_postMessage(
-                            username=text,
+                            username=f"{text} {(' '.join(list(typhoons.keys())[2:])).replace('台風', '')}",
                             icon_emoji=caches.icon_emoji,
                             channel=channel,
                             text=text,
