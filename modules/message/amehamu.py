@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from urllib.parse import quote
 
 import requests
@@ -37,23 +36,23 @@ class call:
                 zoom = '4'
             loc = loc.strip()
             zoom = zoom.strip()
-            url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
+            url = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
             headers = {
                 'User-Agent': user_agent
             }
             r = requests.get(url, headers=headers, timeout=10)
             if r and r.status_code == 200:
-                j = json.loads(r.text)
+                j = r.json()['response'].get('location', {})
                 lat = None
                 lng = None
                 if isinstance(j, list) and len(j) > 0:
                     for p in j:
-                        title = p['properties']['title']
-                        lat = p['geometry']['coordinates'][1]
-                        lng = p['geometry']['coordinates'][0]
+                        title = p.get('prefecture') + p.get('city')
+                        lat = p.get('y')
+                        lng = p.get('x')
                         if loc in title:
-                            print(loc, title)
+                            print(loc, title, lat, lng)
                             break
 
                 if lat and lng:
