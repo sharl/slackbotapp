@@ -66,6 +66,11 @@ def process_message(client: SocketModeClient, req: SocketModeRequest):
                 if module.startswith('reaction_added'):
                     modules[module].call(client, req, options=options[module], caches=caches)
 
+        if req.payload["event"]["type"] == "emoji_changed":
+            for module in modules:
+                if module.startswith('emoji_changed'):
+                    modules[module].call(client, req, options=options[module], caches=caches)
+
 
 def process_interactive(client: SocketModeClient, req: SocketModeRequest):
     if req.type == "interactive":
@@ -78,5 +83,6 @@ client.socket_mode_request_listeners.append(process_message)
 client.socket_mode_request_listeners.append(process_interactive)
 
 client.connect()
+caches.updateChannels(client)
 
 Event().wait()
