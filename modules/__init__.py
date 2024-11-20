@@ -9,6 +9,9 @@ class Caches:
     user_ids = {}
     # 問い合わせを減らすためのdisplay_nameキャッシュ
     display_names = {}
+    # デフォルトチャンネル一覧
+    # [{channel_id: channel_name}]
+    generals = []
 
     username = None
     icon_emoji = None
@@ -16,6 +19,21 @@ class Caches:
 
     def __init__(self):
         pass
+
+    def updateChannels(self, client):
+        r = client.web_client.conversations_list(exclude_archived=True)
+        if r['ok'] is False:
+            return
+
+        for page in r:
+            for channel in page['channels']:
+                channel_id = channel['id']
+                channel_name = channel['name']
+                is_general = channel['is_general']
+
+                self.channel_ids[channel_id] = channel_name
+                if is_general:
+                    self.generals.append({channel_id: channel_name})
 
     def parse(self, client, req):
         user_id = req.payload.get('event', {}).get('user')
