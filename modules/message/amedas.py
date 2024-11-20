@@ -54,7 +54,7 @@ class Amedas:
 
 
 class call:
-    """アメダス[観測地点[周辺]|気温|降水|積雪|最高気温[低]|最低気温[高]] : アメダスでの現在の情報を表示"""
+    """アメダス[観測地点[周辺]|気温|降水|積雪|最高気温[低]|最低気温[高]|積雪深] : アメダスでの現在の情報を表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -107,6 +107,7 @@ class call:
                 codes = None
                 _loc = loc
                 _keys = {
+                    '積雪深': 14,
                     '最低気温高': 3,
                     '最高気温低': 2,
                     '最低気温': 1,
@@ -152,6 +153,10 @@ class call:
                             lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
                         elif _loc.startswith('最低気温'):
                             lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
+                        elif _loc == '積雪深':
+                            for i, c in enumerate(cs):
+                                if c == '積雪':
+                                    lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
                     amedas = '\n'.join(lines)
 
                 # modify message
