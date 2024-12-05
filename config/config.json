@@ -1,18 +1,55 @@
 {
-    "name": "hamu",
+    "name": "はむ",
     "icon_emoji": ":hamster:",
     "modules": {
         "message._help": null,
         "message.amedas": null,
         "message.amesh": null,
+        "message.eventgen": null,
+        "message.gohan": null,
+        "message.omikuji": null,
+        "message.tarot": null,
         "message.typhoon": null,
         "message.amehamu": null,
-        "message.yukihamu": null,
-        "message.thunder": null,
+        "message.kosa": null, 
+        "message.pollen": null,
         "message.tenkizu": null,
-        "message.weather": null,
+        "message.tenkijp": null,
+        "message.graph": null,
+        "message.ollama": {"prefix": "はむ、"},
+        "message.pdf": null,
+        "message.switchbot.meter": {
+            "user": "sharl",
+            "devices": [
+                {
+                    "keyword": "室温",
+                    "device": "E05F42A44713"
+                },
+                {
+                    "keyword": "気温",
+                    "device": "FC2E5AF86C2B"
+                },
+		{
+                    "keyword": "Co2",
+                    "device": "B0E9FE5605F2"
+		}
+            ]
+        },
+        "message.switchbot.plug": {
+            "user": "sharl",
+            "devices": [
+                {
+                    "on": "link on",
+                    "off": "link off",
+                    "device": "6055F92A11DA"
+                }
+            ]
+        },
         "reaction_added.delete_bot_message": {
             "reaction": "see_no_evil"
-        }
+        },
+        "reaction_added.record_emoji": "emoji.csv",
+        "emoji_changed.notice": null,
+        "interactive.hello": "emoji.csv"
     }
 }

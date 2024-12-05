@@ -63,6 +63,12 @@ class Switchbot:
             humidity = data['humidity']
             return '{}C {}%'.format(temperature, humidity)
 
+        if deviceType in ['MeterPro(CO2)']:
+            temperature = data['temperature']
+            humidity = data['humidity']
+            co2ppm = data['CO2']
+            return '{}C {}% {}ppm'.format(temperature, humidity, co2ppm)
+
         # have power status (not lighting unit)
         if deviceType in ['Bot', 'Plug Mini (US)', 'Plug Mini (JP)', 'Plug']:
             return data['power']

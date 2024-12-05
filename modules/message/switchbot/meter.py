@@ -12,6 +12,9 @@ class call:
         if item.get('bot_id') is None:
             user_id = item.get('user')
             username = caches.user_ids.get(user_id)
+
+            print(user_id, username)
+
             if isinstance(options, dict):
                 ouser = options['user']
                 if ouser != username:
