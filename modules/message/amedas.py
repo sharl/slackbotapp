@@ -54,7 +54,7 @@ class Amedas:
 
 
 class call:
-    """アメダス[観測地点[周辺]|気温|降水|積雪|最高気温[低]|最低気温[高]|積雪深] : アメダスでの現在の情報を表示"""
+    """アメダス[観測地点[周辺]|気温|降水|積雪|最高気温[低]|最低気温[高]|積雪深|[スギ|ヒノキ]花粉] : アメダスでの現在の情報を表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -65,6 +65,9 @@ class call:
             '気温': 'https://tenki.jp/amedas/',
             '降水': 'https://tenki.jp/amedas/precip.html',
             '積雪': 'https://tenki.jp/amedas/snow.html',
+            '花粉': 'https://tenki.jp/pollen/mesh/',
+            'スギ花粉': 'https://tenki.jp/pollen/mesh/',
+            'ヒノキ花粉': 'https://tenki.jp/pollen/mesh/cypress.html',
         }
         prefix = 'アメダス'
         suffix = '周辺'
@@ -92,11 +95,18 @@ class call:
                 print('success')
 
             if loc in urls:
-                r = requests.get(urls[loc], timeout=10)
-                if r and r.status_code == 200:
+                with requests.get(urls[loc], timeout=10) as r:
                     soup = BeautifulSoup(r.content, 'html.parser')
                     img = soup.find('img', id='amedas-image')
-                    img_url = img.get('src')
+                    if img:
+                        img_url = img.get('src')
+                    else:
+                        # 花粉
+                        og_images = soup.find_all('img', usemap="#pollen_mesh_image_map")
+                        if len(og_images) == 0:
+                            return
+                        img_url = og_images[0].get('src')
+
                     print(img)
                     try:
                         postMessage()
@@ -184,7 +194,7 @@ class call:
                     mi: ':ice_cube:',
                     hu: ':droplet:',
                     ra: ':umbrella_with_rain_drops:',
-                    wi: ':cyclone:',
+                    wi: ':fish_cake:',
                     sn: ':snowflake:',
                 }
                 for key in emojis:
