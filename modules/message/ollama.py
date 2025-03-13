@@ -58,9 +58,9 @@ class call:
                 _models = ollama.list()['models']
                 models = {}
                 for _model in _models:
-                    models[_model['name']] = [
-                        f"{_model['size'] / (1024 * 1024 * 1024):.1f}G",
-                        _model['details']['parameter_size'],
+                    models[_model.model] = [
+                        f"{_model.size / (1024 * 1024 * 1024):.1f}G",
+                        _model.details.parameter_size,
                         _model['details']['quantization_level'],
                     ]
 
@@ -77,9 +77,14 @@ class call:
 
             # Change Model
             c_prefix = 'モデルを'
-            c_suffix = 'に変えて'
-            if prompt.startswith(c_prefix) and prompt.endswith(c_suffix):
-                _model = prompt.replace(c_prefix, '').replace(c_suffix, '').strip()
+            c_suffixes = ('に変えて', 'に変更して', 'にして')
+            if prompt.startswith(c_prefix) and prompt.endswith(c_suffixes):
+                _model = prompt.replace(c_prefix, '')   # .replace(c_suffixs, '').strip()
+                for s in c_suffixes:
+                    if _model.endswith(s):
+                        _model = _model.replace(s, '')
+                _model = _model.strip()
+
                 if ':' not in _model:
                     post('モデルには : を含める必要があります')
                     return
@@ -104,7 +109,7 @@ class call:
                 messages=[
                     {
                         'role': 'user',
-                        'content': 'あなたは日本人の優秀なアシスタントです。次の質問に日本語で簡潔に答えてください。',
+                        'content': f'あなたは日本人の優秀なアシスタントです。名前は「{caches.username}」です。次の質問に日本語で簡潔に答えてください。',
                     },
                     {
                         'role': 'user',
