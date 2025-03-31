@@ -30,7 +30,7 @@ class call:
         if param is not None and item.get('bot_id', None) is None:
             loc = text.replace(keyword, '').strip()
             if ' ' in loc:
-                loc, zoom = loc.split(' ')
+                loc, zoom = loc.split()
             if not loc:
                 loc = '麻績村'
                 zoom = '4'
