@@ -98,7 +98,10 @@ class call:
                             ymax = 100
                             ymin = 0
                         if param == 'snow':
-                            ymin = 0
+                            if max(_ys) < 10:
+                                ymax = 10
+                            if min(_ys) <= 10:
+                                ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
                             ymin = 0
                             plt.bar(xs, ys)
