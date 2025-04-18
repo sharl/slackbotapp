@@ -42,6 +42,8 @@ class WebClient:
         blocks = kwargs.get('blocks')
         if blocks:
             for b in blocks:
+                if b.get('text'):
+                    print(b['text']['text'])
                 url = b.get('image_url')
                 if url:
                     r = requests.get(url)
@@ -81,4 +83,4 @@ module = sys.argv[1].replace('.py', '').replace('/', '.')
 m = importlib.import_module(f'{module}')
 req.payload['event']['text'] = sys.argv[2]
 
-m.call(client, req, options=options[module.replace('modules.', '')], caches=caches)
+m.call(client, req, options=options.get(module.replace('modules.', ''), {}), caches=caches)
