@@ -2,6 +2,7 @@
 import re
 import subprocess
 import math
+import datetime as dt
 
 import requests
 from bs4 import BeautifulSoup
@@ -54,7 +55,15 @@ class Amedas:
 
 
 class call:
-    """アメダス[観測地点[周辺]|気温|降水|積雪|最高気温[低]|最低気温[高]|積雪深|[スギ|ヒノキ]花粉] : アメダスでの現在の情報を表示"""
+    """アメダス[観測地点[周辺]]
+アメダス気温
+アメダス降水
+アメダス積雪
+アメダス最高気温[低]
+アメダス最低気温[高]
+アメダス積雪深
+アメダス[スギ|ヒノキ]花粉
+アメダス黄砂[ひまわり]"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -113,6 +122,48 @@ class call:
                     except Exception as e:
                         print(e)
                     print(img_url)
+            elif loc.startswith('黄砂'):
+                kosa = {
+                    '黄砂': 'https://www.data.jma.go.jp/env/kosa/fcst/list_js/s_jpjp_list.js',
+                    '黄砂ひまわり': 'https://www.data.jma.go.jp/env/kosa/himawari/kosa_js/DSTTime.js',
+                }
+                img_fmts = {
+                    '黄砂': 'https://www.data.jma.go.jp/env/kosa/fcst/img/surf/jp/{}_kosafcst-s_jp_jp.png',
+                    '黄砂ひまわり': 'https://www.data.jma.go.jp/env/kosa/himawari/img/DST/{}_DST.jpg',
+                }
+                url = None
+                if loc in kosa:
+                    url = kosa[loc]
+                    img_fmt = img_fmts[loc]
+
+                if url:
+                    with requests.get(url, timeout=10) as r:
+                        content = r.content.decode('utf-8')
+
+                        print(content)
+
+                        slt_time = content.split('\n')[2].split()[2].replace('"', '').replace(';', '')
+                        img_url = img_fmt.format(slt_time)
+                        if loc == '黄砂':
+                            fcst = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))) + dt.timedelta(hours=3)
+                            yymmdd = f'{fcst.year}{fcst.month:02d}{fcst.day:02d}'
+                            hour = int(fcst.hour / 3) * 3
+                            img_url = f'https://www.data.jma.go.jp/gmd/env/kosa/fcst/img/surf/jp/{yymmdd}{hour:02d}00_kosafcst-s_jp_jp.png'
+
+                        client.web_client.chat_postMessage(
+                            username=loc,
+                            icon_emoji=caches.icon_emoji,
+                            channel=channel,
+                            text=loc,
+                            blocks=[
+                                {
+                                    'type': 'image',
+                                    'image_url': img_url,
+                                    'alt_text': text,
+                                }
+                            ],
+                            thread_ts=thread_ts,
+                        )
             else:
                 codes = None
                 _loc = loc
