@@ -62,7 +62,7 @@ class call:
 アメダス最高気温[低]
 アメダス最低気温[高]
 アメダス積雪深
-アメダス[スギ|ヒノキ]花粉
+アメダス[スギ|ヒノキ]花粉[地方|都道府県]
 アメダス黄砂[ひまわり]"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
@@ -103,6 +103,12 @@ class call:
                 )
                 print('success')
 
+            # 花粉: 地方・都道府県対応
+            subloc = ''
+            if '花粉' in loc:
+                loc, subloc = loc.split('花粉')
+                loc += '花粉'
+
             if loc in urls:
                 with requests.get(urls[loc], timeout=10) as r:
                     soup = BeautifulSoup(r.content, 'html.parser')
@@ -111,12 +117,52 @@ class call:
                         img_url = img.get('src')
                     else:
                         # 花粉
-                        og_images = soup.find_all('img', usemap="#pollen_mesh_image_map")
-                        if len(og_images) == 0:
-                            return
-                        img_url = og_images[0].get('src')
+                        print(f'loc {loc} subloc {subloc}')
+                        if subloc:
+                            table = soup.find(class_='pollen-list-entries')
+                            # 地方
+                            for th in table.find_all('th'):
+                                abbr = loc + th.get('abbr')
+                                href = 'https://tenki.jp' + th.a.get('href')
+                                # print(abbr, href)
+                                urls[abbr] = href
+                                if '関東' in abbr:
+                                    urls[loc + '関東'] = href
+                                    urls[loc + '甲信'] = href
+                            # 都道府県
+                            for li in table.find_all('li'):
+                                if li.a:
+                                    abbr = loc + li.text.rstrip('都府県')
+                                    href = 'https://tenki.jp' + li.a.get('href')
+                                    # print(abbr, href)
+                                    urls[abbr] = href
+
+                            # import json
+                            # print(json.dumps(urls, indent=2, ensure_ascii=False))
+
+                            if loc + subloc in urls:
+                                with requests.get(urls[loc + subloc], timeout=10) as r:
+                                    soup2 = BeautifulSoup(r.content, 'html.parser')
+                                    og_image = soup2.find('img', usemap="#pollen_mesh_image_map")
+                                    img_url = og_image.get('src')
+                            else:
+                                print(loc, subloc)
+                                client.web_client.chat_postMessage(
+                                    username=prefix,
+                                    icon_emoji=caches.icon_emoji,
+                                    channel=channel,
+                                    text=f'{loc} {subloc} なぜかないのだ',
+                                    thread_ts=thread_ts,
+                                )
+                                return
+                        else:
+                            og_images = soup.find_all('img', usemap="#pollen_mesh_image_map")
+                            if len(og_images) == 0:
+                                return
+                            img_url = og_images[0].get('src')
 
                     print(img)
+                    loc += subloc
                     try:
                         postMessage()
                     except Exception as e:
