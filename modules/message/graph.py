@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import asyncio
+import aiohttp
 import datetime as dt
 
 import requests
@@ -60,24 +62,38 @@ class call:
 
                 self.now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
 
+                async def fetch_data(session, url, param, time_data):
+                    try:
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                for tim in data.keys():
+                                    if param in data[tim] and data[tim][param][1] == 0:
+                                        time_data[tim] = data[tim][param][0]
+                            else:
+                                print(f"Error: {response.status} for URL: {url}")
+                    except aiohttp.ClientError as e:
+                        print(f"aiohttp error for URL {url}: {e}")
+                    except Exception as e:
+                        print(f"An unexpected error occurred for URL {url}: {e}")
+
+                async def prequests(code, param, time_data):
+                    async with aiohttp.ClientSession() as session:
+                        tasks = []
+                        for delta in range(16):
+                            now = self.now - dt.timedelta(hours=delta * 3) - dt.timedelta(minutes=10)
+                            yyyymmdd = now.strftime('%Y%m%d')
+                            HH = now.strftime('%H')
+                            hh = f'{int(HH) // 3 * 3:02d}'
+                            url = f'https://www.jma.go.jp/bosai/amedas/data/point/{code}/{yyyymmdd}_{hh}.json'
+                            task = asyncio.create_task(fetch_data(session, url, param, time_data))
+                            tasks.append(task)
+
+                        await asyncio.gather(*tasks)
+
                 for code in locs:
                     time_data = {}
-                    for delta in range(16):
-                        now = self.now - dt.timedelta(hours=delta * 3) - dt.timedelta(minutes=10)
-                        yyyymmdd = now.strftime('%Y%m%d')
-                        HH = now.strftime('%H')
-                        hh = f'{int(HH) // 3 * 3:02d}'
-
-                        # JSONデータのURL
-                        url = f'https://www.jma.go.jp/bosai/amedas/data/point/{code}/{yyyymmdd}_{hh}.json'
-
-                        # データを取得
-                        response = requests.get(url)
-                        data = response.json()
-
-                        for tim in data.keys():
-                            if param in data[tim] and data[tim][param][1] == 0:
-                                time_data[tim] = data[tim][param][0]
+                    asyncio.run(prequests(code, param, time_data))
 
                     if time_data:
                         # グラフ描画
