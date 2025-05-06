@@ -238,16 +238,18 @@ class call:
                                 r = requests.get(base_url + a['href'])
                                 if r and r.status_code == 200:
                                     soup = BeautifulSoup(r.content, 'html.parser')
-                                    tbl = soup.find_all('table')[_keys[key]]
-                                    trs = tbl.find_all('tr')
-                                    locs = []
-                                    for tr in trs[2:7]:
-                                        tds = tr.find_all('td')
-                                        m = re.match(r'^(.*?)（', tds[3].text)
-                                        if m:
-                                            locs.append(m[1])
-                                    loc = ' '.join(locs)
-                                    break
+                                    tbls = soup.find_all('table')
+                                    if _keys[key] < len(tbls):
+                                        tbl = tbls[_keys[key]]
+                                        trs = tbl.find_all('tr')
+                                        locs = []
+                                        for tr in trs[2:7]:
+                                            tds = tr.find_all('td')
+                                            m = re.match(r'^(.*?)（', tds[3].text)
+                                            if m:
+                                                locs.append(m[1])
+                                        loc = ' '.join(locs)
+                                        break
 
                 print('<<<', loc, _loc)
 
@@ -301,10 +303,11 @@ class call:
                     for p in set(res):
                         amedas = amedas.replace(p, p + emojis[key])
 
-                client.web_client.chat_postMessage(
-                    username=prefix,
-                    icon_emoji=caches.icon_emoji,
-                    channel=channel,
-                    text=amedas,
-                    thread_ts=thread_ts,
-                )
+                if amedas:
+                    client.web_client.chat_postMessage(
+                        username=prefix,
+                        icon_emoji=caches.icon_emoji,
+                        channel=channel,
+                        text=amedas,
+                        thread_ts=thread_ts,
+                    )
