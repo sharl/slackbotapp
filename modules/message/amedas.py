@@ -62,6 +62,7 @@ class call:
 アメダス最高気温[低]
 アメダス最低気温[高]
 アメダス積雪深
+アメダスPM2.5[地方|都道府県]
 アメダス[スギ|ヒノキ]花粉[地方|都道府県]
 アメダス黄砂[ひまわり]"""
     def __init__(self, client, req, options=None, caches={}):
@@ -77,6 +78,7 @@ class call:
             '花粉': 'https://tenki.jp/pollen/mesh/',
             'スギ花粉': 'https://tenki.jp/pollen/mesh/',
             'ヒノキ花粉': 'https://tenki.jp/pollen/mesh/cypress.html',
+            'PM2.5': 'https://tenki.jp/pm25/',
         }
         prefix = 'アメダス'
         suffix = '周辺'
@@ -103,11 +105,19 @@ class call:
                 )
                 print('success')
 
-            # 花粉: 地方・都道府県対応
+            # 花粉・PM2.5: 地方・都道府県対応
             subloc = ''
-            if '花粉' in loc:
-                loc, subloc = loc.split('花粉')
-                loc += '花粉'
+            kvs = {
+                '花粉': ['pollen-list-entries', '#pollen_mesh_image_map'],
+                'PM2.5': ['common-list-entries', '#pm25-map'],
+            }
+            for k in kvs:
+                if k in loc:
+                    loc, subloc = loc.split(k)
+                    loc += k
+                    list_class = kvs[k][0]
+                    usemap = kvs[k][1]
+                    break
 
             if loc in urls:
                 with requests.get(urls[loc], timeout=10) as r:
@@ -119,10 +129,10 @@ class call:
                         # 花粉
                         print(f'loc {loc} subloc {subloc}')
                         if subloc:
-                            table = soup.find(class_='pollen-list-entries')
+                            table = soup.find(class_=list_class)
                             # 地方
                             for th in table.find_all('th'):
-                                abbr = loc + th.get('abbr')
+                                abbr = loc + th.get('abbr', th.text.replace('地方', ''))
                                 href = 'https://tenki.jp' + th.a.get('href')
                                 # print(abbr, href)
                                 urls[abbr] = href
@@ -132,7 +142,7 @@ class call:
                             # 都道府県
                             for li in table.find_all('li'):
                                 if li.a:
-                                    abbr = loc + li.text.rstrip('都府県')
+                                    abbr = loc + (li.text[0:-1] if li.text[-1] in '都府県' else li.text)
                                     href = 'https://tenki.jp' + li.a.get('href')
                                     # print(abbr, href)
                                     urls[abbr] = href
@@ -143,7 +153,9 @@ class call:
                             if loc + subloc in urls:
                                 with requests.get(urls[loc + subloc], timeout=10) as r:
                                     soup2 = BeautifulSoup(r.content, 'html.parser')
-                                    og_image = soup2.find('img', usemap="#pollen_mesh_image_map")
+                                    og_image = soup2.find('img', usemap=usemap)
+                                    if og_image is None:
+                                        return
                                     img_url = og_image.get('src')
                             else:
                                 print(loc, subloc)
@@ -156,10 +168,10 @@ class call:
                                 )
                                 return
                         else:
-                            og_images = soup.find_all('img', usemap="#pollen_mesh_image_map")
-                            if len(og_images) == 0:
+                            og_image = soup.find('img', usemap=usemap)
+                            if og_image is None:
                                 return
-                            img_url = og_images[0].get('src')
+                            img_url = og_image.get('src')
 
                     print(img)
                     loc += subloc
