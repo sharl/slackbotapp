@@ -139,6 +139,8 @@ class call:
                                 if '関東' in abbr:
                                     urls[loc + '関東'] = href
                                     urls[loc + '甲信'] = href
+                                if '沖縄' in abbr:
+                                    urls[abbr + '地方'] = href
                             # 都道府県
                             for li in table.find_all('li'):
                                 if li.a:
