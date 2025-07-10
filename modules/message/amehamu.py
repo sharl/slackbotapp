@@ -32,64 +32,66 @@ class call:
             if ' ' in loc:
                 loc, zoom = loc.split()
             if not loc:
-                loc = '麻績村'
+                loc = '岐阜県関市'
                 zoom = '4'
             loc = loc.strip()
             zoom = zoom.strip()
-            url = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
+            title = lat = lng = None
+            url1 = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
+            url2 = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
             headers = {
                 'User-Agent': user_agent
             }
-            r = requests.get(url, headers=headers, timeout=10)
-            if r and r.status_code == 200:
-                j = r.json()['response'].get('location', {})
-                lat = None
-                lng = None
-                if isinstance(j, list) and len(j) > 0:
-                    for p in j:
-                        title = p.get('prefecture') + p.get('city')
-                        lat = p.get('y')
-                        lng = p.get('x')
-                        if loc in title:
-                            print(loc, title, lat, lng)
-                            break
+            if not (lat and lng):
+                with requests.get(url1, headers=headers, timeout=10) as r:
+                    j = r.json()['response'].get('location', {})
+                    if isinstance(j, list) and len(j) > 0:
+                        for p in j:
+                            title = p.get('prefecture') + p.get('city')
+                            lat = p.get('y')
+                            lng = p.get('x')
+                            if lat and lng:
+                                print(loc, title, lat, lng)
+                                break
 
-                if lat and lng:
-                    r = requests.get(f'https://weather.yahoo.co.jp/weather/zoomradar/{param}?lat={lat}&lon={lng}&z={zoom}')
-                    if r and r.status_code == 200:
-                        soup = BeautifulSoup(r.content, 'html.parser')
-                        og_images = soup.find_all('meta', property="og:image")
-                        if len(og_images) == 0:
-                            return
-                        img_url = og_images[0].get('content').replace('600x600', '600x400')
-                        client.web_client.chat_postMessage(
-                            username=keyword,
-                            icon_emoji=caches.icon_emoji,
-                            channel=channel,
-                            text=text,
-                            blocks=[
-                                {
-                                    'type': 'image',
-                                    'image_url': img_url,
-                                    'alt_text': title,
-                                }
-                            ],
-                            thread_ts=thread_ts,
-                        )
-                    else:
-                        client.web_client.chat_postMessage(
-                            username=keyword,
-                            icon_emoji=caches.icon_emoji,
-                            channel=channel,
-                            text=loc + 'は見つからなかったよ',
-                            thread_ts=thread_ts,
-                        )
-                else:
+            if not (lat and lng):
+                with requests.get(url2, headers=headers, timeout=10) as r:
+                    j = r.json()
+                    if isinstance(j, list) and len(j) > 0:
+                        for p in j[0], j[-1]:
+                            lng, lat = p['geometry']['coordinates']
+                            title = p['properties']['title']
+                            print(loc, title, lat, lng)
+
+            print(loc, title, lat, lng, zoom)
+
+            if lat and lng:
+                with requests.get(f'https://weather.yahoo.co.jp/weather/zoomradar/{param}?lat={lat}&lon={lng}&z={zoom}') as r:
+                    soup = BeautifulSoup(r.content, 'html.parser')
+                    og_image = soup.find('meta', property='og:image')
+                    if og_image is None:
+                        return
+                    img_url = og_image.get('content')
                     client.web_client.chat_postMessage(
                         username=keyword,
                         icon_emoji=caches.icon_emoji,
                         channel=channel,
-                        text=loc + 'のスポット情報取得に失敗しました',
+                        text=text,
+                        blocks=[
+                            {
+                                'type': 'image',
+                                'image_url': img_url,
+                                'alt_text': title,
+                            }
+                        ],
                         thread_ts=thread_ts,
                     )
+            else:
+                client.web_client.chat_postMessage(
+                    username=keyword,
+                    icon_emoji=caches.icon_emoji,
+                    channel=channel,
+                    text=loc + 'のスポット情報取得に失敗しました',
+                    thread_ts=thread_ts,
+                )
