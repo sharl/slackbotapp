@@ -45,7 +45,7 @@ class call:
             }
             if not (lat and lng):
                 with requests.get(url1, headers=headers, timeout=10) as r:
-                    j = r.json()['response'].get('location', {})
+                    j = r.json()['response'].get('location', [])
                     if isinstance(j, list) and len(j) > 0:
                         for p in j:
                             title = p.get('prefecture') + p.get('city')
