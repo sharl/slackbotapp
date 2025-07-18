@@ -37,32 +37,36 @@ class call:
             loc = loc.strip()
             zoom = zoom.strip()
             title = lat = lng = None
-            url1 = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
-            url2 = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
             headers = {
                 'User-Agent': user_agent
             }
-            if not (lat and lng):
-                with requests.get(url1, headers=headers, timeout=10) as r:
-                    j = r.json()['response'].get('location', [])
-                    if isinstance(j, list) and len(j) > 0:
-                        for p in j:
-                            title = p.get('prefecture') + p.get('city')
-                            lat = p.get('y')
-                            lng = p.get('x')
-                            if lat and lng:
-                                print(loc, title, lat, lng)
-                                break
+            timeout = 1
+            try:
+                if not (lat and lng):
+                    url = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
+                    with requests.get(url, headers=headers, timeout=timeout) as r:
+                        j = r.json()['response'].get('location', [])
+                        if isinstance(j, list) and len(j) > 0:
+                            for p in j:
+                                title = p.get('prefecture') + p.get('city')
+                                lat = p.get('y')
+                                lng = p.get('x')
+                                if lat and lng:
+                                    print(loc, title, lat, lng)
+                                    break
 
-            if not (lat and lng):
-                with requests.get(url2, headers=headers, timeout=10) as r:
-                    j = r.json()
-                    if isinstance(j, list) and len(j) > 0:
-                        for p in j[0], j[-1]:
-                            lng, lat = p['geometry']['coordinates']
-                            title = p['properties']['title']
-                            print(loc, title, lat, lng)
+                if not (lat and lng):
+                    url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
+                    with requests.get(url, headers=headers, timeout=timeout) as r:
+                        j = r.json()
+                        if isinstance(j, list) and len(j) > 0:
+                            for p in j[0], j[-1]:
+                                lng, lat = p['geometry']['coordinates']
+                                title = p['properties']['title']
+                                print(loc, title, lat, lng)
+            except Exception:
+                pass
 
             print(loc, title, lat, lng, zoom)
 
