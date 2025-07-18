@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys
-import json
 import importlib
+import json
+import os
+import sys
 import tempfile
 
 from libsixel.encoder import Encoder
@@ -79,8 +80,13 @@ class Req:
 client = Client()
 req = Req()
 
+dummy_user_key = 'U'
+caches.user_ids = {dummy_user_key: os.environ.get('UID')}
+caches.display_names = {dummy_user_key: os.environ.get('USER')}
+
 module = sys.argv[1].replace('.py', '').replace('/', '.')
 m = importlib.import_module(f'{module}')
 req.payload['event']['text'] = sys.argv[2]
+req.payload['event']['user'] = dummy_user_key
 
 m.call(client, req, options=options.get(module.replace('modules.', ''), {}), caches=caches)
