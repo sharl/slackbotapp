@@ -56,12 +56,13 @@ class Amedas:
 
 class call:
     """アメダス[観測地点[周辺]]
-アメダス気温
-アメダス降水
-アメダス積雪
+アメダス気温[地方|都道府県]
+アメダス降水[地方|都道府県]
+アメダス積雪[地方|都道府県]
 アメダス最高気温[低]
 アメダス最低気温[高]
 アメダス積雪深
+アメダス衛星[日本広域|日本付近|北日本|東日本|西日本|沖縄|[1-4]日前]
 アメダスPM2.5[地方|都道府県]
 アメダス[スギ|ヒノキ]花粉[地方|都道府県]
 アメダス黄砂[ひまわり]"""
@@ -75,6 +76,7 @@ class call:
             '気温': 'https://tenki.jp/amedas/',
             '降水': 'https://tenki.jp/amedas/precip.html',
             '積雪': 'https://tenki.jp/amedas/snow.html',
+            '衛星': 'https://tenki.jp/satellite/japan-near/',
             '花粉': 'https://tenki.jp/pollen/mesh/',
             'スギ花粉': 'https://tenki.jp/pollen/mesh/',
             'ヒノキ花粉': 'https://tenki.jp/pollen/mesh/cypress.html',
@@ -105,14 +107,18 @@ class call:
                 )
                 print('success')
 
-            # 花粉・PM2.5: 地方・都道府県対応
+            # 地方・都道府県対応
             subloc = ''
             kvs = {
+                '気温': ['common-list-entries', '#amedas-map'],
+                '降水': ['common-list-entries', '#amedas-map'],
+                '積雪': ['common-list-entries', '#amedas-map'],
                 '花粉': ['pollen-list-entries', '#pollen_mesh_image_map'],
                 'PM2.5': ['common-list-entries', '#pm25-map'],
+                '衛星': ['satellite-card-image-entries', '#satellite-image-map'],
             }
             for k in kvs:
-                if k in loc:
+                if k in loc and loc != '積雪深':
                     loc, subloc = loc.split(k)
                     loc += k
                     list_class = kvs[k][0]
@@ -122,14 +128,11 @@ class call:
             if loc in urls:
                 with requests.get(urls[loc], timeout=10) as r:
                     soup = BeautifulSoup(r.content, 'html.parser')
-                    img = soup.find('img', id='amedas-image')
-                    if img:
-                        img_url = img.get('src')
-                    else:
-                        # 花粉
-                        print(f'loc {loc} subloc {subloc}')
-                        if subloc:
-                            table = soup.find(class_=list_class)
+
+                    print(f'loc {loc} subloc {subloc}')
+                    if subloc:
+                        tables = soup.find_all(class_=list_class)
+                        for table in tables:
                             # 地方
                             for th in table.find_all('th'):
                                 abbr = loc + th.get('abbr', th.text.replace('地方', ''))
@@ -149,33 +152,32 @@ class call:
                                     # print(abbr, href)
                                     urls[abbr] = href
 
-                            # import json
-                            # print(json.dumps(urls, indent=2, ensure_ascii=False))
+                        # import json
+                        # print(json.dumps(urls, indent=2, ensure_ascii=False))
 
-                            if loc + subloc in urls:
-                                with requests.get(urls[loc + subloc], timeout=10) as r:
-                                    soup2 = BeautifulSoup(r.content, 'html.parser')
-                                    og_image = soup2.find('img', usemap=usemap)
-                                    if og_image is None:
-                                        return
-                                    img_url = og_image.get('src')
-                            else:
-                                print(loc, subloc)
-                                client.web_client.chat_postMessage(
-                                    username=prefix,
-                                    icon_emoji=caches.icon_emoji,
-                                    channel=channel,
-                                    text=f'{loc} {subloc} なぜかないのだ',
-                                    thread_ts=thread_ts,
-                                )
-                                return
+                        if loc + subloc in urls:
+                            with requests.get(urls[loc + subloc], timeout=10) as r:
+                                soup2 = BeautifulSoup(r.content, 'html.parser')
+                                og_image = soup2.find('img', usemap=usemap)
+                                if og_image is None:
+                                    return
+                                img_url = og_image.get('src')
                         else:
-                            og_image = soup.find('img', usemap=usemap)
-                            if og_image is None:
-                                return
-                            img_url = og_image.get('src')
+                            print(loc, subloc)
+                            client.web_client.chat_postMessage(
+                                username=prefix,
+                                icon_emoji=caches.icon_emoji,
+                                channel=channel,
+                                text=f'{loc} {subloc} なぜかないのだ',
+                                thread_ts=thread_ts,
+                            )
+                            return
+                    else:
+                        og_image = soup.find('img', usemap=usemap)
+                        if og_image is None:
+                            return
+                        img_url = og_image.get('src')
 
-                    print(img)
                     loc += subloc
                     try:
                         postMessage()
@@ -272,25 +274,31 @@ class call:
                     lines = []
                     for _line in amedas.split('\n'):
                         cs = _line.split()
-                        if _loc.startswith('最高気温'):
-                            lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
-                        elif _loc.startswith('最低気温'):
-                            lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
-                        elif _loc == '積雪深':
-                            for i, c in enumerate(cs):
-                                if c == '積雪':
-                                    lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
-                    amedas = '\n'.join(lines)
+                        try:
+                            if _loc.startswith('最高気温'):
+                                lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
+                            elif _loc.startswith('最低気温'):
+                                lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
+                            elif _loc == '積雪深':
+                                for i, c in enumerate(cs):
+                                    if c == '積雪':
+                                        lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
+                        except Exception:
+                            pass
+                        amedas = '\n'.join(lines)
 
                 # modify message
+                do = r'(\.\d)?度'
+                # 40度以上
+                ak = r' ([4-9]\d)' + do
                 # 35度以上
-                me = r' (3[5-9]|[4-9].)(\..)?度'
+                me = r' (3[5-9])' + do
                 # 30度以上
-                ho = r' (3[0-4])(\..)?度'
+                ho = r' (3[0-4])' + do
                 # 25度以上30度未満
-                te = r' (2[5-9])(\..)?度'
+                te = r' (2[5-9])' + do
                 # 5度未満
-                mi = r' (-\d+|[0-4])(\..)?度'
+                mi = r' (-\d+|[0-4])' + do
                 # 80% 以上
                 hu = r'(8|9|10).%'
                 # 10m/s 以上
@@ -301,6 +309,7 @@ class call:
                 sn = r'\d\d\dcm'
 
                 emojis = {
+                    ak: ':atsui_koupen:',
                     me: ':melting_face:',
                     ho: ':hot_face:',
                     te: ':fire:',
