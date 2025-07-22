@@ -81,19 +81,7 @@ class call:
 
                         # make card result
                         lines.append(f'{_name}さんの{_card[idx]}が開きました')
-                        lines.append(QUOTE)
-                        # lines.append(LINE)
-                        for y in range(HEIGHT):
-                            line = '|'
-                            for x in range(WIDTH):
-                                i = y * HEIGHT + x
-                                loc = _card[i] if _open[i] == OPENED else ''
-                                _l = len(loc)
-                                s = '\u3000' * (MAXLEN - _l)
-                                line += f'{loc}{s}|'
-                            lines.append(line)
-                        # lines.append(LINE)
-                        lines.append(QUOTE)
+                        lines += self.showCard(_card, _open)
 
                         # judgement desuno
                         # horizontal
@@ -208,6 +196,26 @@ class call:
 
             message = f'{username}さんのエントリーが完了しました'
         else:
-            message = f'{username}さんはすでにエントリー済みです'
+            _card, _open = data[_id]
+            lines = [f'{username}さんのビンゴカードです']
+            lines += self.showCard(_card, _open)
+            message = '\n'.join(lines)
 
         return message
+
+    def showCard(self, _card=[], _open=[]):
+        lines = []
+        lines.append(QUOTE)
+        for y in range(HEIGHT):
+            line = '|'
+            for x in range(WIDTH):
+                i = y * HEIGHT + x
+                loc = _card[i] if _open[i] == OPENED else ''
+                _l = len(loc)
+                s = '\u3000' * (MAXLEN - _l)
+                line += f'{loc}{s}|'
+            lines.append(line)
+        # lines.append(LINE)
+        lines.append(QUOTE)
+
+        return lines
