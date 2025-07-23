@@ -15,6 +15,7 @@ def deg2dec(deg):
 
 
 maps = {}
+NEAR_LIMIT = 5
 
 
 class Amedas:
@@ -51,7 +52,7 @@ class Amedas:
                 dist = math.dist((lat, lng), (_lat, _lng))
                 if dist < 1:
                     lines.append([_code, _name, dist])
-        return ' '.join([loc[0] for loc in sorted(lines, key=lambda x: x[2])[:5]])
+        return ' '.join([loc[0] for loc in sorted(lines, key=lambda x: x[2])[:NEAR_LIMIT]])
 
 
 class call:
@@ -118,7 +119,7 @@ class call:
                 '衛星': ['satellite-card-image-entries', '#satellite-image-map'],
             }
             for k in kvs:
-                if k in loc and loc != '積雪深':
+                if k in loc and loc not in ['最高気温低', '最低気温高', '積雪深']:
                     loc, subloc = loc.split(k)
                     loc += k
                     list_class = kvs[k][0]
