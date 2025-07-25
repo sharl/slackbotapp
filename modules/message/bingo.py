@@ -83,49 +83,8 @@ class call:
                         lines.append(f'{_name}さんの{_card[idx]}が開きました')
                         lines += self.showCard(_card, _open)
 
-                        # judgement desuno
-                        # horizontal
-                        for y in range(HEIGHT):
-                            a = _open[slice(y * HEIGHT, y * HEIGHT + WIDTH)]
-                            _l = list(set(a))
-                            s = sorted(a)
-                            if s == REACH:
-                                self.reach[_name] += 1
-                                lines.append(f'{_name}さん {self.reach[_name]} リーチです')
-                            if _l == BINGO:
-                                self.bingo[_name] += 1
-                                lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
-                        # vertical
-                        for x in range(WIDTH):
-                            a = _open[slice(x, WIDTH * HEIGHT, HEIGHT)]
-                            _l = list(set(a))
-                            s = sorted(a)
-                            if s == REACH:
-                                self.reach[_name] += 1
-                                lines.append(f'{_name}さん {self.reach[_name]} リーチです')
-                            if _l == BINGO:
-                                self.bingo[_name] += 1
-                                lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
-                        # \ left top to right bottom
-                        a = _open[LTRB]
-                        _l = list(set(a))
-                        s = sorted(a)
-                        if s == REACH:
-                            self.reach[_name] += 1
-                            lines.append(f'{_name}さん {self.reach[_name]} リーチです')
-                        if _l == BINGO:
-                            self.bingo[_name] += 1
-                            lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
-                        # / right top to lefe bottom
-                        a = _open[RTLB]
-                        _l = list(set(a))
-                        s = sorted(a)
-                        if s == REACH:
-                            self.reach[_name] += 1
-                            lines.append(f'{_name}さん {self.reach[_name]} リーチです')
-                        if _l == BINGO:
-                            self.bingo[_name] += 1
-                            lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
+                        # judgement
+                        lines += self.judgeCard(_name, _card, _open)
 
                         message = '\n'.join(lines)
 
@@ -207,9 +166,65 @@ class call:
             _card, _open = data[_id]
             lines = [f'{username}さんのビンゴカードです']
             lines += self.showCard(_card, _open)
+            lines += self.judgeCard(username, _card, _open)
             message = '\n'.join(lines)
 
         return message
+
+    def judgeCard(self, _name, _card, _open):
+        lines = []
+        if _name not in self.bingo:
+            self.bingo[_name] = 0
+        if _name not in self.reach:
+            self.reach[_name] = 0
+
+        # horizontal
+        for y in range(HEIGHT):
+            a = _open[slice(y * HEIGHT, y * HEIGHT + WIDTH)]
+            _l = list(set(a))
+            s = sorted(a)
+            if s == REACH:
+                self.reach[_name] += 1
+                lines.append(f'{_name}さん {self.reach[_name]} リーチです')
+            if _l == BINGO:
+                self.bingo[_name] += 1
+                lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
+
+        # vertical
+        for x in range(WIDTH):
+            a = _open[slice(x, WIDTH * HEIGHT, HEIGHT)]
+            _l = list(set(a))
+            s = sorted(a)
+            if s == REACH:
+                self.reach[_name] += 1
+                lines.append(f'{_name}さん {self.reach[_name]} リーチです')
+            if _l == BINGO:
+                self.bingo[_name] += 1
+                lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
+
+        # \ left top to right bottom
+        a = _open[LTRB]
+        _l = list(set(a))
+        s = sorted(a)
+        if s == REACH:
+            self.reach[_name] += 1
+            lines.append(f'{_name}さん {self.reach[_name]} リーチです')
+        if _l == BINGO:
+            self.bingo[_name] += 1
+            lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
+
+        # / right top to lefe bottom
+        a = _open[RTLB]
+        _l = list(set(a))
+        s = sorted(a)
+        if s == REACH:
+            self.reach[_name] += 1
+            lines.append(f'{_name}さん {self.reach[_name]} リーチです')
+        if _l == BINGO:
+            self.bingo[_name] += 1
+            lines.append(f'{_name}さん {self.bingo[_name]} ビンゴです')
+
+        return lines
 
     def showCard(self, _card=[], _open=[]):
         lines = []
