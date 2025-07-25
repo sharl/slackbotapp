@@ -136,6 +136,14 @@ class call:
             end = time.time()
             print(f"bingo took {end - start:f} s")
 
+        elif not text and item.get('bot_id') is None:
+            data = self.loadCards()
+            for _id in data:
+                _card, _open = data[_id]
+                lines = [_id.split(',')[1]]
+                lines += self.showCard(_card, _open)
+                print('\n'.join(lines))
+
         # is bingo?
         bingo = 0
         for member in self.bingo:
@@ -182,7 +190,7 @@ class call:
         if _id not in data:
             # new entry
             # user_id,username,sample(AMEDAS, 25),0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
-            locs = sample(BINGOES, 5 * 5)
+            locs = sample(BINGOES, WIDTH * HEIGHT)
             center = (WIDTH * HEIGHT - 1) // 2
             # center is free
             locs[center] = 'なんでも'
