@@ -59,6 +59,7 @@ class call:
     """アメダス[観測地点[周辺]]
 アメダス気温[地方|都道府県]
 アメダス降水[地方|都道府県]
+アメダス雨雲[地方|都道府県]
 アメダス積雪[地方|都道府県]
 アメダス最高気温[低]
 アメダス最低気温[高]
@@ -76,6 +77,7 @@ class call:
         urls = {
             '気温': 'https://tenki.jp/amedas/',
             '降水': 'https://tenki.jp/amedas/precip.html',
+            '雨雲': 'https://tenki.jp/radar/',
             '積雪': 'https://tenki.jp/amedas/snow.html',
             '衛星': 'https://tenki.jp/satellite/japan-near/',
             '花粉': 'https://tenki.jp/pollen/mesh/',
@@ -113,6 +115,7 @@ class call:
             kvs = {
                 '気温': ['common-list-entries', '#amedas-map'],
                 '降水': ['common-list-entries', '#amedas-map'],
+                '雨雲': ['common-list-entries', '#radar-map'],
                 '積雪': ['common-list-entries', '#amedas-map'],
                 '花粉': ['pollen-list-entries', '#pollen_mesh_image_map'],
                 'PM2.5': ['common-list-entries', '#pm25-map'],
