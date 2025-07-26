@@ -7,12 +7,20 @@ from random import sample
 DATATXT = 'bingo.txt'
 BINGOES = []
 MAXLEN = 0
+FREE = 'なんでも'
+FREES = {
+    1: '★',
+    2: 'FREE',
+    3: '何でも',
+}
 if not BINGOES:
     with open(DATATXT) as fd:
         BINGOES = fd.read().strip().split('\n')
         for key in BINGOES:
             if len(key) > MAXLEN:
                 MAXLEN = len(key)
+    if MAXLEN in FREES:
+        FREE = FREES[MAXLEN]
 
 DATABASE = 'bingo.csv'
 CLOSED = '0'
@@ -152,7 +160,7 @@ class call:
             locs = sample(BINGOES, WIDTH * HEIGHT)
             center = (WIDTH * HEIGHT - 1) // 2
             # center is free
-            locs[center] = 'なんでも'
+            locs[center] = FREE
             # center FREE is opened
             flags = [CLOSED for _ in range(WIDTH * HEIGHT)]
             flags[center] = OPENED
