@@ -115,7 +115,7 @@ class call:
             kvs = {
                 '気温': ['common-list-entries', '#amedas-map'],
                 '降水': ['common-list-entries', '#amedas-map'],
-                '雨雲': ['common-list-entries', '#radar-map'],
+                '雨雲': ['common-list-entries', '#radar-map', 'radar-area-pref-entries-table'],
                 '積雪': ['common-list-entries', '#amedas-map'],
                 '花粉': ['pollen-list-entries', '#pollen_mesh_image_map'],
                 'PM2.5': ['common-list-entries', '#pm25-map'],
@@ -136,6 +136,12 @@ class call:
                     print(f'loc {loc} subloc {subloc}')
                     if subloc:
                         tables = soup.find_all(class_=list_class)
+                        # なぜか雨雲は3つある……
+                        if len(tables) != 1:
+                            id_class = kvs[loc][2]
+                            print(loc, len(tables), id_class)
+                            tables = soup.find_all(id=id_class, class_=list_class)
+
                         for table in tables:
                             # 地方
                             for th in table.find_all('th'):
