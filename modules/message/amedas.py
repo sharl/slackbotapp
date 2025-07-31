@@ -66,6 +66,9 @@ class call:
 アメダス最低気温[高]
 アメダス積雪深
 アメダス衛星[日本広域|日本付近|北日本|東日本|西日本|沖縄|[1-4]日前]
+アメダス赤外[日本広域|日本付近|北日本|東日本|西日本|沖縄|[1-4]日前]
+アメダス可視[日本広域|日本付近|北日本|東日本|西日本|沖縄|[1-4]日前]
+アメダス水蒸気[日本広域|日本付近|北日本|東日本|西日本|沖縄|[1-4]日前]
 アメダスPM2.5[地方|都道府県]
 アメダス[スギ|ヒノキ]花粉[地方|都道府県]
 アメダス黄砂[ひまわり]"""
@@ -82,10 +85,15 @@ class call:
             '雷': 'https://tenki.jp/thunder/',
             '積雪': 'https://tenki.jp/amedas/snow.html',
             '衛星': 'https://tenki.jp/satellite/japan-near/',
+            '赤外': 'https://tenki.jp/satellite/japan-near/',
+            '可視': 'https://tenki.jp/satellite/japan-near/visible/',
+            '水蒸気': 'https://tenki.jp/satellite/japan-near/vapor/',
             '花粉': 'https://tenki.jp/pollen/mesh/',
             'スギ花粉': 'https://tenki.jp/pollen/mesh/',
             'ヒノキ花粉': 'https://tenki.jp/pollen/mesh/cypress.html',
             'PM2.5': 'https://tenki.jp/pm25/',
+            '地震': 'https://earthquake.tenki.jp/bousai/earthquake/',
+            '津波': 'https://earthquake.tenki.jp/bousai/tsunami/',
         }
         prefix = 'アメダス'
         suffix = '周辺'
@@ -123,6 +131,9 @@ class call:
                 '花粉': ['pollen-list-entries', '#pollen_mesh_image_map'],
                 'PM2.5': ['common-list-entries', '#pm25-map'],
                 '衛星': ['satellite-card-image-entries', '#satellite-image-map'],
+                '赤外': ['satellite-card-image-entries', '#satellite-image-map'],
+                '可視': ['satellite-card-image-entries', '#satellite-image-map'],
+                '水蒸気': ['satellite-card-image-entries', '#satellite-image-map'],
             }
             for k in kvs:
                 if k in loc and loc not in ['最高気温低', '最低気温高', '積雪深']:
@@ -139,9 +150,14 @@ class call:
                     print(f'loc {loc} subloc {subloc}')
                     if subloc:
                         tables = soup.find_all(class_=list_class)
-                        # なぜか雨雲は3つある……
+                        # なぜか雨雲と衛星は3つある……
                         if len(tables) != 1:
-                            id_class = kvs[loc][2]
+                            for t in tables:
+                                print(t.get('id'))
+
+                            id_class = None
+                            if len(kvs[loc]) > 2:
+                                id_class = kvs[loc][2]
                             print(loc, len(tables), id_class)
                             tables = soup.find_all(id=id_class, class_=list_class)
 
@@ -171,10 +187,12 @@ class call:
                         if loc + subloc in urls:
                             with requests.get(urls[loc + subloc], timeout=10) as r:
                                 soup2 = BeautifulSoup(r.content, 'html.parser')
-                                og_image = soup2.find('img', usemap=usemap)
+                                og_image = soup2.find('meta', property='og:image')
+                                # og_image = soup2.find('img', usemap=usemap)
                                 if og_image is None:
                                     return
-                                img_url = og_image.get('src')
+                                # img_url = og_image.get('src')
+                                img_url = og_image.get('content')
                         else:
                             print(loc, subloc)
                             client.web_client.chat_postMessage(
@@ -186,10 +204,12 @@ class call:
                             )
                             return
                     else:
-                        og_image = soup.find('img', usemap=usemap)
+                        og_image = soup.find('meta', property='og:image')
+                        # og_image = soup.find('img', usemap=usemap)
                         if og_image is None:
                             return
-                        img_url = og_image.get('src')
+                        # img_url = og_image.get('src')
+                        img_url = og_image.get('content')
 
                     loc += subloc
                     try:
@@ -288,11 +308,11 @@ class call:
                     for _line in amedas.split('\n'):
                         cs = _line.split()
                         try:
-                            if _loc.startswith('最高気温'):
+                            if _loc.startswith('最高気温') and '最高気温' in _line:
                                 lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
-                            elif _loc.startswith('最低気温'):
+                            elif _loc.startswith('最低気温') and '最低気温' in _line:
                                 lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
-                            elif _loc == '積雪深':
+                            elif _loc == '積雪深'  and '積雪' in _line:
                                 for i, c in enumerate(cs):
                                     if c == '積雪':
                                         lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
