@@ -44,7 +44,9 @@ class call:
                             _total = int(_dam['利水容量'])
                             if _total != 0:
                                 line = f'{loc} {name} {_perc}%'
-                                lines.append(line)
+                            else:
+                                line = f'{loc} {name} 0%'
+                            lines.append(line)
 
                 if lines:
                     client.web_client.chat_postMessage(
