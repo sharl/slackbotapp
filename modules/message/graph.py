@@ -107,8 +107,8 @@ class call:
                         _ys = [v for v in ys if v is not None]  # 休止中対応
                         xmin = min(xs)
                         xmax = max(xs)
-                        ymin = min(_ys) - 1
-                        ymax = max(_ys) + 1
+                        ymin = min(_ys) - 2
+                        ymax = max(_ys) + 2
 
                         if param == 'humidity':
                             ymax = 100
