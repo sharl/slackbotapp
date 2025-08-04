@@ -218,6 +218,7 @@ class call:
                         # img_url = og_image.get('src')
 
                     loc += subloc
+                    img_url += dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime('?%Y%m%d%H%M')
                     try:
                         postMessage()
                     except Exception as e:
