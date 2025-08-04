@@ -191,15 +191,21 @@ class call:
                                 # og_image = soup2.find('img', usemap=usemap)
                                 if og_image is None:
                                     return
-                                # img_url = og_image.get('src')
                                 img_url = og_image.get('content')
+                                # img_url = og_image.get('src')
                         else:
                             print(loc, subloc)
+                            areas = []
+                            for k in urls:
+                                if loc in k:
+                                    a = k.replace(loc, '')
+                                    if a:
+                                        areas.append(a)
                             client.web_client.chat_postMessage(
                                 username=prefix,
                                 icon_emoji=caches.icon_emoji,
                                 channel=channel,
-                                text=f'{loc} {subloc} なぜかないのだ',
+                                text=f'{loc} {subloc} なぜかないのだ ({" ".join(areas)})',
                                 thread_ts=thread_ts,
                             )
                             return
@@ -208,8 +214,8 @@ class call:
                         # og_image = soup.find('img', usemap=usemap)
                         if og_image is None:
                             return
-                        # img_url = og_image.get('src')
                         img_url = og_image.get('content')
+                        # img_url = og_image.get('src')
 
                     loc += subloc
                     try:
