@@ -39,7 +39,7 @@ REACH = [CLOSED, OPENED, OPENED, OPENED, OPENED]
 # \ left top to right bottom
 LTRB = slice(0, WIDTH * HEIGHT, WIDTH + 1)
 # / right top to lefe bottom
-RTLB = slice(WIDTH - 1, WIDTH * HEIGHT, WIDTH - 1)
+RTLB = slice(WIDTH - 1, WIDTH * HEIGHT - 1, WIDTH - 1)
 
 
 class call:
@@ -106,9 +106,11 @@ class call:
         elif not text and item.get('bot_id') is None:
             data = self.loadCards()
             for _id in data:
+                _, _name = _id.split(',')
                 _card, _open = data[_id]
-                lines = [_id.split(',')[1]]
+                lines = [_name]
                 lines += self.showCard(_card, _open)
+                lines += self.judgeCard(_name, _card, _open)
                 print('\n'.join(lines))
 
         # is bingo?
