@@ -15,7 +15,7 @@ def deg2dec(deg):
 
 
 maps = {}
-NEAR_LIMIT = 5
+NEAR_LIMIT = 10
 
 
 class Amedas:
@@ -187,12 +187,14 @@ class call:
                         if loc + subloc in urls:
                             with requests.get(urls[loc + subloc], timeout=10) as r:
                                 soup2 = BeautifulSoup(r.content, 'html.parser')
-                                og_image = soup2.find('meta', property='og:image')
-                                # og_image = soup2.find('img', usemap=usemap)
+                                if loc != '雷':
+                                    og_image = soup2.find('meta', property='og:image')
+                                    img_url = og_image.get('content')
+                                else:
+                                    og_image = soup2.find('img', usemap=usemap)
+                                    img_url = og_image.get('src')
                                 if og_image is None:
                                     return
-                                img_url = og_image.get('content')
-                                # img_url = og_image.get('src')
                         else:
                             print(loc, subloc)
                             areas = []
@@ -299,7 +301,7 @@ class call:
                                         tbl = tbls[_keys[key]]
                                         trs = tbl.find_all('tr')
                                         locs = []
-                                        for tr in trs[2:7]:
+                                        for tr in trs[2:]:
                                             tds = tr.find_all('td')
                                             m = re.match(r'^(.*?)（', tds[3].text)
                                             if m:
@@ -319,7 +321,7 @@ class call:
                                 lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
                             elif _loc.startswith('最低気温') and '最低気温' in _line:
                                 lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
-                            elif _loc == '積雪深'  and '積雪' in _line:
+                            elif _loc == '積雪深' and '積雪' in _line:
                                 for i, c in enumerate(cs):
                                     if c == '積雪':
                                         lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
