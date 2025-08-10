@@ -368,6 +368,17 @@ class call:
                     for p in set(res):
                         amedas = amedas.replace(p, p + emojis[key])
 
+                weathers = {
+                    '晴': ':sunny:',
+                    '曇': ':cloud:',
+                    '雨': ':rain_cloud:',
+                    '雪': ':snow_cloud:',
+                    '雷': ':zap:',
+                }
+                for w in weathers:
+                    if w in amedas:
+                        amedas = amedas.replace(f'天気 {w}', weathers[w])
+
                 if amedas:
                     client.web_client.chat_postMessage(
                         username=prefix,
