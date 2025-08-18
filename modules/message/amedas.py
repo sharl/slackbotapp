@@ -327,7 +327,7 @@ class call:
                                         lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
                         except Exception:
                             pass
-                        amedas = '\n'.join(lines)
+                    amedas = '\n'.join(lines)
 
                 # modify message
                 do = r'(\.\d)?度'
