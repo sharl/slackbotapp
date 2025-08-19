@@ -96,7 +96,7 @@ class call:
             '津波': 'https://earthquake.tenki.jp/bousai/tsunami/',
         }
         prefix = 'アメダス'
-        suffix = '周辺'
+        suffixes = ('周辺', '付近')
         if text.startswith(prefix) and item.get('bot_id') is None:
             loc = text.replace(prefix, '').strip()
 
@@ -278,8 +278,11 @@ class call:
                     '最低気温': 1,
                     '最高気温': 0,
                 }
-                if loc.endswith(suffix):
-                    names = loc.replace(suffix, '').strip()
+                if loc.endswith(suffixes):
+                    for s in suffixes:
+                        names = loc.replace(s, '').strip()
+                        if names != loc:
+                            break
                     codes = Amedas().getNearLocation(names)
                 if codes:
                     loc = codes
