@@ -56,7 +56,7 @@ class call:
             # グラフ種別
             param = words[prefix]
             # 地点名
-            tmp = text.replace(prefix, '')
+            tmp = text.replace(prefix, '').strip()
             _locs = [tmp, tmp.replace('ヶ', 'ケ')]
             r = requests.get('https://www.jma.go.jp/bosai/amedas/const/amedastable.json')
             if r and r.status_code == 200:
