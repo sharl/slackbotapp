@@ -138,6 +138,8 @@ class call:
             for k in kvs:
                 if k in loc and loc not in ['最高気温低', '最低気温高', '積雪深']:
                     loc, subloc = loc.split(k)
+                    loc = loc.strip()
+                    subloc = subloc.strip()
                     loc += k
                     list_class = kvs[k][0]
                     usemap = kvs[k][1]
