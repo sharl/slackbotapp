@@ -85,6 +85,10 @@ class call:
                         blocks=[
                             {
                                 'type': 'image',
+                                'title': {
+                                    'type': 'plain_text',
+                                    'text': title,
+                                },
                                 'image_url': img_url,
                                 'alt_text': title,
                             }
