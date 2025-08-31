@@ -112,7 +112,8 @@ def post_to_slack():
 
         username = data.get('username', caches.username)
         icon_emoji = data.get('icon_emoji', caches.icon_emoji)
-        channel = data.get('channel')
+        # if not set channel, use general channel's first name
+        channel = data.get('channel', list(caches.generals[0].values())[0] if caches.generals else None)
         text = data.get('text')
         blocks = data.get('blocks')
 
