@@ -3,8 +3,10 @@
 import os
 import json
 import importlib
-from threading import Event
+import threading
 
+from bottle import route, run, request, response as bottleResponse
+from slack_sdk.errors import SlackApiError
 from slack_sdk.web import WebClient
 from slack_sdk.socket_mode import SocketModeClient
 from slack_sdk.socket_mode.response import SocketModeResponse
@@ -85,4 +87,73 @@ client.socket_mode_request_listeners.append(process_interactive)
 client.connect()
 caches.updateChannels(client)
 
-Event().wait()
+
+@route('/chat_postMessage', method='POST')
+def post_to_slack():
+    """
+    Slackの指定されたチャンネルにメッセージを投稿する API endpoint
+    request body is JSON
+    例:
+        {
+            "username": "hamu",
+            "icon_emoji": "bot",
+            "channel": "dev",
+            "text": "Hello from API!",
+            "blocks": null,
+        }
+    """
+    try:
+        data = request.json
+        if not data:
+            bottleResponse.status = 400
+            return {'error': 'Invalid JSON payload.'}
+
+        # print(json.dumps(data, indent=2, ensure_ascii=False))
+
+        username = data.get('username', caches.username)
+        icon_emoji = data.get('icon_emoji', caches.icon_emoji)
+        channel = data.get('channel')
+        text = data.get('text')
+        blocks = data.get('blocks')
+
+        if not channel:
+            bottleResponse.status = 400
+            return {'error': 'Required fields "channel" is missing'}
+
+        # search channel_id
+        channel_id = None
+        for c_id in caches.channel_ids:
+            if caches.channel_ids[c_id] == channel:
+                channel_id = c_id
+                break
+
+        if not channel_id:
+            bottleResponse.status = 400
+            return {'error': f"Not exist {channel}'s channel_id"}
+
+        client.web_client.chat_postMessage(
+            username=username,
+            icon_emoji=icon_emoji,
+            channel=channel_id,
+            text=text,
+            blocks=blocks,
+        )
+
+        bottleResponse.status = 200
+        return {'status': 'ok', 'message': 'Message successfully posted to Slack.'}
+    except SlackApiError as e:
+        bottleResponse.status = 500
+        return {'error': f'Slack API Error: {e.response['error']}'}
+    except Exception as e:
+        bottleResponse.status = 500
+        return {'error': f'Internal Server Error: {str(e)}'}
+
+
+def run_bottle_app():
+    run(host='localhost', port=16543)
+
+
+bottle_thread = threading.Thread(target=run_bottle_app, daemon=True)
+bottle_thread.start()
+
+threading.Event().wait()
