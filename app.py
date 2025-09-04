@@ -101,6 +101,14 @@ def post_to_slack():
             "text": "Hello from API!",
             "blocks": null,
         }
+        or
+        {
+            "username": "hamu",
+            "icon_emoji": "bot",
+            "channel": "dev",
+            "title": "title",
+            "file": filename,
+        }
     """
     try:
         data = request.json
@@ -117,6 +125,11 @@ def post_to_slack():
         text = data.get('text')
         blocks = data.get('blocks')
 
+        title = ''
+        filename = data.get('file')
+        if filename and os.path.exists(filename):
+            title = data.get('title', os.path.splitext(os.path.basename(filename))[0])
+
         if not channel:
             bottleResponse.status = 400
             return {'error': 'Required fields "channel" is missing'}
@@ -132,13 +145,22 @@ def post_to_slack():
             bottleResponse.status = 400
             return {'error': f"Not exist {channel}'s channel_id"}
 
-        client.web_client.chat_postMessage(
-            username=username,
-            icon_emoji=icon_emoji,
-            channel=channel_id,
-            text=text,
-            blocks=blocks,
-        )
+        if filename and title:
+            client.web_client.files_upload_v2(
+                username=username,
+                icon_emoji=icon_emoji,
+                channel=channel_id,
+                title=title,
+                file=filename,
+            )
+        elif text:
+            client.web_client.chat_postMessage(
+                username=username,
+                icon_emoji=icon_emoji,
+                channel=channel_id,
+                text=text,
+                blocks=blocks,
+            )
 
         bottleResponse.status = 200
         return {'status': 'ok', 'message': 'Message successfully posted to Slack.'}
