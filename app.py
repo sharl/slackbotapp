@@ -154,6 +154,21 @@ def post_to_slack():
                 file=filename,
             )
         elif text:
+            # if not set blocks and image_url set, create temporary blocks
+            image_url = data.get('image_url')
+            if not blocks and image_url:
+                blocks = [
+                    {
+                        'type': 'image',
+                        'title': {
+                            'type': 'plain_text',
+                            'text': text,
+                        },
+                        'image_url': image_url,
+                        'alt_text': text,
+                    }
+                ]
+
             client.web_client.chat_postMessage(
                 username=username,
                 icon_emoji=icon_emoji,
