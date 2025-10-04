@@ -10,7 +10,7 @@ MAXLEN = 0
 FREE = 'なんでも'
 FREES = {
     1: '★',
-    2: 'FREE',
+    2: '自由',
     3: '何でも',
 }
 if not BINGOES:
