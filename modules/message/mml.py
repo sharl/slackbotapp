@@ -7,9 +7,6 @@ import subprocess
 import pyxel
 
 
-pyxel.init(0, 0)
-
-
 def parse(mml):
     tracks = {}
     MML_PREFIX = 'MML#'
@@ -43,6 +40,9 @@ def parse(mml):
             tracks[track] = []
         tracks[track].append(line)
 
+    # init
+    pyxel.init(0, 0)
+
     # reset
     for track in range(4):
         pyxel.sounds[track].mml()
@@ -62,6 +62,8 @@ def parse(mml):
     # wav to mp3
     subprocess.run(f'ffmpeg -v 0 -y -i {outfile}.wav {outfile}.mp3'.split())
     os.unlink(f'{outfile}.wav')
+
+    pyxel.quit()
 
     return f'{outfile}.mp3'
 
