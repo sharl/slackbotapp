@@ -308,9 +308,10 @@ class call:
                                         locs = []
                                         for tr in trs[2:]:
                                             tds = tr.find_all('td')
-                                            m = re.match(r'^(.*?)（', tds[3].text)
-                                            if m:
-                                                locs.append(m[1])
+                                            if len(tds) > 1:
+                                                m = re.match(r'^(.*?)（', tds[3].text)
+                                                if m:
+                                                    locs.append(m[1])
                                         loc = ' '.join(locs)
                                         break
 
@@ -377,6 +378,7 @@ class call:
                     '晴': ':sunny:',
                     '曇': ':cloud:',
                     '雨': ':rain_cloud:',
+                    'みぞれ': ':shaved_ice:',
                     '雪': ':snow_cloud:',
                     '雷': ':zap:',
                 }
