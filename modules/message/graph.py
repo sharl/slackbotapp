@@ -163,7 +163,7 @@ class call:
                                 if ymax >= h:
                                     plt.hlines(h, xmin, xmax, colors=COLORMAP[h])
                             for h in [COLD + 10, COLD + 5, COLD, COLD - 5]:
-                                if ymin <= h:
+                                if ymin <= h and ymax >= h:
                                     plt.hlines(h, xmin, xmax, colors=COLORMAP[h])
 
                         f = f'/tmp/graph_{param}_{code}.png'
