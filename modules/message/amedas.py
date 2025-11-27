@@ -6,7 +6,7 @@ import datetime as dt
 
 import requests
 from bs4 import BeautifulSoup
-from tenacity import retry, stop_after_attempt
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 
 def deg2dec(deg):
@@ -101,7 +101,7 @@ class call:
             loc = text.replace(prefix, '').strip()
 
             # 気温・降水・積雪用のリトライつきポスト
-            @retry(stop=stop_after_attempt(3))
+            @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
             def postMessage():
                 print('try')
                 client.web_client.chat_postMessage(
