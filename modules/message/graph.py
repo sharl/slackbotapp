@@ -78,7 +78,7 @@ class call:
                             if response.status == 200:
                                 data = await response.json()
                                 for tim in data.keys():
-                                    if param in data[tim] and data[tim][param][1] == 0:
+                                    if param in data[tim]:
                                         time_data[tim] = data[tim][param][0]
                             else:
                                 print(f"Error: {response.status} for URL: {url}")
