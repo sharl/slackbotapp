@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+import base64
+import datetime as dt
+import io
+import re
+
+from ddgs import DDGS
 import ollama
+import requests
 
 CONFIG = '.ollama-model'
 
 
 class call:
-    """はむ、<質問> : Ollama を使用して回答を生成します"""
+    """はむ、<質問> : Ollama を使用して検索結果を元に回答を生成します"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -40,12 +47,61 @@ class call:
                     thread_ts=thread_ts,
                 )
 
+        def search_web(query: str, max_results: int = 5):
+            with DDGS() as ddgs:
+                results = list(ddgs.text(
+                    query,
+                    backend='auto',
+                    region='jp-jp',
+                    safesearch='off',
+                    max_results=max_results)
+                )
+                return [f"Title: {r['title']}\nSnippet: {r['body']}" for r in results]
+
+        def summarize_with_ollama(query: str, contexts: list, images: list = []):
+            context_text = '\n\n'.join(contexts)
+            now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime('%Y年%m月%d日 %H時%M分')
+            prompt = f"""
+あなたは優秀なリサーチアシスタントです。
+名前は「{caches.username}」です。
+今は{now}です。
+以下のコンテキストのみを使用して、ユーザーの質問に対する回答を丁寧な言葉の日本語で作成してください。
+一番最新と思われる事実のみを抽出し、簡潔にまとめることが重要です。
+
+【ユーザーの質問】: {query}
+
+【検索結果】:
+{context_text}
+
+【回答】:
+"""
+            try:
+                response = ollama.generate(
+                    model=self.model,
+                    prompt=prompt,
+                    images=images,
+                    options={'temperature': 0.5},
+                )
+                return response.get('response', 'わかりません')
+            except Exception as e:
+                return f'Ollamaエラー: {str(e)}'
+
+        def search_and_summarize(query: str, images: list) -> str:
+            search_results = search_web(query)
+            if not search_results:
+                return 'よくわかりません'
+
+            summary = summarize_with_ollama(query, search_results, images)
+            return summary
+
         prefix = '{}:'.format(caches.username)
         if options:
             prefix = options.get('prefix', str())
 
         if text.startswith(prefix) and item.get('bot_id') is None:
             prompt = text.replace(prefix, '').strip()
+            if not prompt:
+                return
 
             self.model = str()
             with open(CONFIG) as fd:
@@ -101,26 +157,21 @@ class call:
                     post(f'{_model} はありません')
                 return
 
-            # Generate a chat
+            # Generate an answer
             reactions_add('loading')
 
-            answer = ollama.chat(
-                model=self.model,
-                messages=[
-                    {
-                        'role': 'user',
-                        'content': f'あなたは日本人の優秀なアシスタントです。名前は「{caches.username}」です。次の質問に日本語で簡潔に答えてください。',
-                    },
-                    {
-                        'role': 'user',
-                        'content': prompt,
-                    },
-                ],
-                stream=False,
-                options={
-                    'temperature': 0,
-                },
-            ).get('message', {}).get('content', 'わかりません'). strip()
+            images = list()
+            m = re.search(r'<(https?://.+)\|?.*?>', text)
+            if m:
+                for url in m.groups():
+                    if url.startswith('http'):
+                        with requests.get(url) as r:
+                            image_bytes = io.BytesIO(r.content)
+                            encoded = base64.b64encode(image_bytes.getvalue()).decode('utf-8')
+                            images.append(encoded)
+                            prompt = prompt.replace(f'<{url}>', '')
+
+            answer = search_and_summarize(prompt, images)
 
             # **hoge** -> hoge
             answer = answer.replace('**', '')
