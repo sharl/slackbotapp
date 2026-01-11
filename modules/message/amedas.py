@@ -363,7 +363,7 @@ class call:
                     te: ':fire:',
                     mi: ':ice_cube:',
                     hu: ':droplet:',
-                    ra: ':umbrella_with_rain_drops:',
+                    ra: ':rain_cloud:',
                     wi: ':fish_cake:',
                     sn: ':snowflake:',
                 }
@@ -377,9 +377,9 @@ class call:
                 weathers = {
                     '晴': ':sunny:',
                     '曇': ':cloud:',
-                    '雨': ':rain_cloud:',
+                    '雨': ':umbrella_with_rain_drops:',
                     'みぞれ': ':shaved_ice:',
-                    '雪': ':snow_cloud:',
+                    '雪': ':snowman:',
                     '雷': ':zap:',
                 }
                 for w in weathers:
