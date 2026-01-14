@@ -161,10 +161,12 @@ class call:
                         if param == 'temp':
                             for h in [HEAT + 15, HEAT + 10, HEAT + 5, HEAT]:
                                 if ymax >= h:
-                                    plt.hlines(h, xmin, xmax, colors=COLORMAP[h])
+                                    lw = (1 + (1 if h == HEAT else 0))
+                                    plt.hlines(h, xmin, xmax, colors=COLORMAP[h], lw=lw)
                             for h in [COLD + 10, COLD + 5, COLD, COLD - 5]:
                                 if ymin <= h and ymax >= h:
-                                    plt.hlines(h, xmin, xmax, colors=COLORMAP[h])
+                                    lw = (1 + (1 if h == COLD else 0))
+                                    plt.hlines(h, xmin, xmax, colors=COLORMAP[h], lw=lw)
 
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
