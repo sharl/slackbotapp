@@ -189,12 +189,8 @@ class call:
                         if loc + subloc in urls:
                             with requests.get(urls[loc + subloc], timeout=10) as r:
                                 soup2 = BeautifulSoup(r.content, 'html.parser')
-                                if loc != '雷':
-                                    og_image = soup2.find('meta', property='og:image')
-                                    img_url = og_image.get('content')
-                                else:
-                                    og_image = soup2.find('img', usemap=usemap)
-                                    img_url = og_image.get('src')
+                                og_image = soup2.find('img', usemap=usemap)
+                                img_url = og_image.get('src')
                                 if og_image is None:
                                     return
                         else:
