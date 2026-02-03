@@ -22,7 +22,7 @@ class Amedas:
     def __init__(self):
         if not maps:
             print('>>> read amedastable')
-            with requests.get('https://www.jma.go.jp/bosai/amedas/const/amedastable.json') as r:
+            with requests.get('https://www.jma.go.jp/bosai/amedas/const/amedastable.json', timeout=10) as r:
                 table = r.json()
                 for code in table:
                     name = table[code]['kjName']
@@ -289,12 +289,12 @@ class call:
 
                     for key in _keys:
                         if _loc == key:
-                            r = requests.get(base_url)
+                            r = requests.get(base_url, timeout=10)
                             if r and r.status_code == 200:
                                 soup = BeautifulSoup(r.content, 'html.parser')
                                 uls = soup.find_all('ul')
                                 a = uls[4].find('a')
-                                r = requests.get(base_url + a['href'])
+                                r = requests.get(base_url + a['href'], timeout=10)
                                 if r and r.status_code == 200:
                                     soup = BeautifulSoup(r.content, 'html.parser')
                                     tbls = soup.find_all('table')
