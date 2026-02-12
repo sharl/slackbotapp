@@ -168,6 +168,11 @@ class call:
                                     lw = (1 + (1 if h == COLD else 0))
                                     plt.hlines(h, xmin, xmax, colors=COLORMAP[h], lw=lw)
 
+                        elif param == 'snow':
+                            for h in list(range(100, ymax, 100)):
+                                if ymin <= h:
+                                    plt.hlines(h, xmin, xmax, colors='black', lw=2)
+
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
                         plt.close()
