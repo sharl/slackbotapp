@@ -11,9 +11,8 @@ from slack_sdk.web import WebClient
 from slack_sdk.socket_mode import SocketModeClient
 from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.socket_mode.request import SocketModeRequest
-from tenacity import retry, wait_fixed, stop_after_attempt
 
-from modules import Caches, Logger
+from modules import uploadFile, postMessage, Caches, Logger
 
 #
 # init
@@ -149,17 +148,7 @@ def post_to_slack():
             return {'error': f"Not exist {channel}'s channel_id"}
 
         if filename and title:
-            @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
-            def uploadFile():
-                client.web_client.files_upload_v2(
-                    username=username,
-                    icon_emoji=icon_emoji,
-                    channel=channel_id,
-                    title=title,
-                    file=filename,
-                )
-
-            uploadFile()
+            uploadFile(client, username, icon_emoji, channel_id, title, filename)
         elif text:
             # if not set blocks and image_url set, create temporary blocks
             image_url = data.get('image_url')
@@ -176,17 +165,7 @@ def post_to_slack():
                     }
                 ]
 
-            @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
-            def postMessage():
-                client.web_client.chat_postMessage(
-                    username=username,
-                    icon_emoji=icon_emoji,
-                    channel=channel_id,
-                    text=text,
-                    blocks=blocks,
-                )
-
-            postMessage()
+            postMessage(client, username, icon_emoji, channel_id, text, blocks)
 
         bottleResponse.status = 200
         return {'status': 'ok', 'message': 'Message successfully posted to Slack.'}
