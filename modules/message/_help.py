@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from modules import postMessage
+
+
 class call:
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
@@ -7,10 +10,11 @@ class call:
         thread_ts = item.get('thread_ts')
 
         if text.strip().replace(' ', '') in ['はむ?', 'はむ？']:
-            client.web_client.chat_postMessage(
-                username=caches.username,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=caches.doc,
+            postMessage(
+                client,
+                caches.username,
+                caches.icon_emoji,
+                channel,
+                caches.doc,
                 thread_ts=thread_ts,
             )

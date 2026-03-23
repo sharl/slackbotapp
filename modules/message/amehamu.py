@@ -4,6 +4,8 @@ from urllib.parse import quote
 import requests
 from bs4 import BeautifulSoup
 
+from modules import postMessage
+
 
 class call:
     """あめはむ[地点] : 降水状況を表示
@@ -77,11 +79,12 @@ class call:
                     if og_image is None:
                         return
                     img_url = og_image.get('content')
-                    client.web_client.chat_postMessage(
-                        username=keyword,
-                        icon_emoji=caches.icon_emoji,
-                        channel=channel,
-                        text=text,
+                    postMessage(
+                        client,
+                        keyword,
+                        caches.icon_emoji,
+                        channel,
+                        text,
                         blocks=[
                             {
                                 'type': 'image',
@@ -96,10 +99,11 @@ class call:
                         thread_ts=thread_ts,
                     )
             else:
-                client.web_client.chat_postMessage(
-                    username=keyword,
-                    icon_emoji=caches.icon_emoji,
-                    channel=channel,
-                    text=loc + 'のスポット情報取得に失敗しました',
+                postMessage(
+                    client,
+                    keyword,
+                    caches.icon_emoji,
+                    channel,
+                    loc + 'のスポット情報取得に失敗しました',
                     thread_ts=thread_ts,
                 )

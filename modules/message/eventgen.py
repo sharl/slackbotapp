@@ -2,6 +2,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from modules import postMessage
+
 
 class call:
     """実話 : 実話(うそ)を表示"""
@@ -33,10 +35,11 @@ class call:
                     status = 'だめぽ'
                     break
 
-            client.web_client.chat_postMessage(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=status,
+            postMessage(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                status,
                 thread_ts=thread_ts,
             )

@@ -4,6 +4,8 @@ import os
 # import time
 from random import sample
 
+from modules import postMessage
+
 DATATXT = 'bingo.txt'
 BINGOES = []
 MAXLEN = 0
@@ -117,17 +119,18 @@ class call:
         bingo = 0
         for member in self.bingo:
             if self.bingo[member]:
-                message += f'\n{member}さんおめでとうございます'
+                message += f'\n*{member}さんおめでとうございます*'
                 bingo += 1
         if bingo:
             os.unlink(DATABASE)
 
         if message:
-            client.web_client.chat_postMessage(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=message,
+            postMessage(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                message,
                 thread_ts=thread_ts,
             )
 

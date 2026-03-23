@@ -2,9 +2,11 @@
 import requests
 from bs4 import BeautifulSoup
 
+from modules import postMessage
+
 
 class call:
-    """ごはん : ランダムでごはんを表示"""
+    """ごはん|エスニック|洋食|和食|おやつ : ランダムでメニューを表示"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -36,10 +38,11 @@ class call:
 
             gohan = f'{username} さんの{keyword}は {result} です'
 
-            client.web_client.chat_postMessage(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=gohan,
+            postMessage(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                gohan,
                 thread_ts=thread_ts,
             )

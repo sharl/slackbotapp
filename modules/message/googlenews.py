@@ -2,10 +2,11 @@
 import re
 import json
 from urllib.parse import quote
-# from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+
+from modules import postMessage
 
 DEF_KEY = 'journal:'
 DEF_ICON = 'dog'
@@ -73,11 +74,12 @@ class call:
                     if not lines:
                         lines = [notfound]
 
-                    client.web_client.chat_postMessage(
-                        username=f'『{query}』のニュース',
-                        icon_emoji=emoji,
-                        channel=channel,
-                        unfurl_links=False,
-                        text='\n'.join(lines),
+                    postMessage(
+                        client,
+                        f'『{query}』のニュース',
+                        emoji,
+                        channel,
+                        '\n'.join(lines),
                         thread_ts=thread_ts,
+                        unfurl_links=False,
                     )

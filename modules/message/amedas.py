@@ -6,7 +6,9 @@ import datetime as dt
 
 import requests
 from bs4 import BeautifulSoup
-from tenacity import retry, wait_fixed, stop_after_attempt
+# from tenacity import retry, wait_fixed, stop_after_attempt
+
+from modules import postMessage
 
 
 def deg2dec(deg):
@@ -100,26 +102,6 @@ class call:
         if text.startswith(prefix) and item.get('bot_id') is None:
             loc = text.replace(prefix, '').strip()
 
-            # 気温・降水・積雪用のリトライつきポスト
-            @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
-            def postMessage():
-                print('try')
-                client.web_client.chat_postMessage(
-                    username=loc,
-                    icon_emoji=caches.icon_emoji,
-                    channel=channel,
-                    text=loc,
-                    blocks=[
-                        {
-                            'type': 'image',
-                            'image_url': img_url,
-                            'alt_text': loc,
-                        }
-                    ],
-                    thread_ts=thread_ts,
-                )
-                print('success')
-
             # 地方・都道府県対応
             subloc = ''
             kvs = {
@@ -201,11 +183,12 @@ class call:
                                     a = k.replace(loc, '')
                                     if a:
                                         areas.append(a)
-                            client.web_client.chat_postMessage(
-                                username=prefix,
-                                icon_emoji=caches.icon_emoji,
-                                channel=channel,
-                                text=f'{loc} {subloc} なぜかないのだ ({" ".join(areas)})',
+                            postMessage(
+                                client,
+                                prefix,
+                                caches.icon_emoji,
+                                channel,
+                                f'{loc} {subloc} なぜかないのだ ({" ".join(areas)})',
                                 thread_ts=thread_ts,
                             )
                             return
@@ -219,10 +202,21 @@ class call:
 
                     loc += subloc
                     img_url += dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime('?%Y%m%d%H%M')
-                    try:
-                        postMessage()
-                    except Exception as e:
-                        print(e)
+                    postMessage(
+                        client,
+                        loc,
+                        caches.icon_emoji,
+                        channel,
+                        text=loc,
+                        blocks=[
+                            {
+                                'type': 'image',
+                                'image_url': img_url,
+                                'alt_text': loc,
+                            }
+                        ],
+                        thread_ts=thread_ts,
+                    )
                     print(img_url)
             elif loc.startswith('黄砂'):
                 kosa = {
@@ -252,10 +246,11 @@ class call:
                             hour = int(fcst.hour / 3) * 3
                             img_url = f'https://www.data.jma.go.jp/gmd/env/kosa/fcst/img/surf/jp/{yymmdd}{hour:02d}00_kosafcst-s_jp_jp.png'
 
-                        client.web_client.chat_postMessage(
-                            username=loc,
-                            icon_emoji=caches.icon_emoji,
-                            channel=channel,
+                        postMessage(
+                            client,
+                            loc,
+                            caches.icon_emoji,
+                            channel,
                             text=loc,
                             blocks=[
                                 {
@@ -383,10 +378,11 @@ class call:
                         amedas = amedas.replace(f'天気 {w}', weathers[w])
 
                 if amedas:
-                    client.web_client.chat_postMessage(
-                        username=prefix,
-                        icon_emoji=caches.icon_emoji,
-                        channel=channel,
-                        text=amedas,
+                    postMessage(
+                        client,
+                        prefix,
+                        caches.icon_emoji,
+                        channel,
+                        amedas,
                         thread_ts=thread_ts,
                     )

@@ -3,6 +3,8 @@ from random import random
 
 from redis import Redis
 
+from modules import postMessage
+
 name = 'omikuji'
 expire = 86400
 
@@ -52,10 +54,11 @@ class call:
             username = caches.display_names.get(user_id)
             result = chinchiro(username)
 
-            client.web_client.chat_postMessage(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=result,
+            postMessage(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                result,
                 thread_ts=thread_ts,
             )

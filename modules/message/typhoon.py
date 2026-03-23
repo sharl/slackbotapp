@@ -2,6 +2,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from modules import postMessage
+
 
 class call:
     """台風 : 台風情報を表示
@@ -28,21 +30,26 @@ class call:
 
                 if text in typhoons:
                     url = typhoons[text]
-                    r = requests.get(url, timeout=10)
-                    if r and r.status_code == 200:
+                    with requests.get(url, timeout=10) as r:
                         soup = BeautifulSoup(r.content, 'html.parser')
                         div = soup.find('div', class_='tabView_content_image')
-                        client.web_client.chat_postMessage(
-                            username=f"{text} {(' '.join(list(typhoons.keys())[2:])).replace('台風', '')}",
-                            icon_emoji=caches.icon_emoji,
-                            channel=channel,
-                            text=text,
-                            blocks=[
-                                {
-                                    'type': 'image',
-                                    'image_url': div.img['src'],
-                                    'alt_text': text,
-                                }
-                            ],
+                        blocks = [
+                            {
+                                'type': 'image',
+                                'image_url': div.img['src'],
+                                'alt_text': text,
+                            }
+                        ]
+                        postMessage(
+                            client,
+                            # username
+                            f"{text} {(' '.join(list(typhoons.keys())[2:])).replace('台風', '')}",
+                            # icon_emoji
+                            'fish_cake',
+                            # channel
+                            channel,
+                            # text
+                            text,
+                            blocks=blocks,
                             thread_ts=thread_ts,
                         )

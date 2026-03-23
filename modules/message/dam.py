@@ -3,6 +3,8 @@ import re
 
 import requests
 
+from modules import postMessage
+
 DAM_URL = 'https://weathernews.jp/dam/json/dam.json'
 DAM_RE = re.compile(r'ダム（?.*')
 maps = {}
@@ -22,7 +24,7 @@ class call:
 
             # ダム名をキャッシュ
             if not maps:
-                with requests.get(DAM_URL) as r:
+                with requests.get(DAM_URL, timeout=10) as r:
                     for dam in r.json()['features']:
                         _name = dam['properties']['name']
                         # 正規化
@@ -32,11 +34,12 @@ class call:
                         name2 = name.replace('ヶ', 'ケ')
                         if name2 not in maps:
                             maps[name2] = _name
+                print(f'maps completed. {len(maps)}')
 
             if loc in maps:
                 lines = []
                 name = maps[loc]
-                with requests.get(DAM_URL) as r:
+                with requests.get(DAM_URL, timeout=10) as r:
                     for dam in r.json()['features']:
                         _dam = dam['properties']
                         if name == _dam['name']:
@@ -49,10 +52,11 @@ class call:
                             lines.append(line)
 
                 if lines:
-                    client.web_client.chat_postMessage(
-                        username=prefix,
-                        icon_emoji=caches.icon_emoji,
-                        channel=channel,
-                        text='\n'.join(lines),
+                    postMessage(
+                        client,
+                        prefix,
+                        caches.icon_emoji,
+                        channel,
+                        '\n'.join(lines),
                         thread_ts=thread_ts,
                     )

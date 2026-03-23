@@ -3,6 +3,8 @@ from redis import Redis
 import requests
 from bs4 import BeautifulSoup
 
+from modules import postMessage
+
 name = 'tarot'
 expire = 43200
 
@@ -15,8 +17,7 @@ def tarots(user):
     if pre:
         return f'{user} さんはすでに引いています【{pre}】'
     else:
-        res = requests.get('https://honkaku-uranai.jp/daily/tarot/one/result/', timeout=10)
-        if res and res.status_code == 200:
+        with requests.get('https://honkaku-uranai.jp/daily/tarot/one/result/', timeout=10) as res:
             soup = BeautifulSoup(res.content, 'html.parser')
             result1 = soup.find('p', class_='name_card').text
             result2 = soup.find('p', class_='c_keyword2').text
@@ -41,10 +42,11 @@ class call:
             username = caches.display_names.get(user_id)
             result = tarots(username)
 
-            client.web_client.chat_postMessage(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=result,
+            postMessage(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                result,
                 thread_ts=thread_ts,
             )

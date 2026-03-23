@@ -2,8 +2,8 @@
 import random
 
 from ddgs import DDGS
-import requests
-from bs4 import BeautifulSoup as bs
+
+from modules import postMessage
 
 
 class call:
@@ -27,11 +27,12 @@ class call:
             if images:
                 random.shuffle(images)
                 link = images[0].get('image')
-                client.web_client.chat_postMessage(
-                    username=word,
-                    icon_emoji=caches.icon_emoji,
-                    channel=channel,
-                    text=text,
+                postMessage(
+                    client,
+                    word,
+                    caches.icon_emoji,
+                    channel,
+                    text,
                     blocks=[
                         {
                             'type': 'image',

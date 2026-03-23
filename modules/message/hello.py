@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from modules import postMessage
+
+
 class call:
     def __init__(self, client, req, options=None, caches={}):
         text = req.payload["event"]["text"]
@@ -6,7 +9,8 @@ class call:
         channel = req.payload["event"]["channel"]
 
         if text == "hello":
-            client.web_client.chat_postMessage(
-                text=f'hi, <@{user}>',
-                channel=channel,
+            postMessage(
+                client,
+                f'hi, <@{user}>',
+                channel,
             )

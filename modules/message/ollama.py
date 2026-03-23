@@ -2,11 +2,14 @@
 import base64
 import datetime as dt
 import io
+import os
 import re
 
 from ddgs import DDGS
 import ollama
 import requests
+
+from modules import postMessage
 
 CONFIG = '.ollama-model'
 
@@ -39,55 +42,55 @@ class call:
 
         def post(text):
             if text:
-                client.web_client.chat_postMessage(
-                    username=caches.username,
-                    icon_emoji=caches.icon_emoji,
-                    channel=channel,
-                    text=text,
+                postMessage(
+                    client,
+                    caches.username,
+                    caches.icon_emoji,
+                    channel,
+                    text,
                     thread_ts=thread_ts,
                 )
 
         def search_web(query: str, max_results: int = 5):
-            with DDGS() as ddgs:
-                results = list(ddgs.text(
-                    query,
-                    backend='auto',
-                    region='jp-jp',
-                    safesearch='off',
-                    max_results=max_results)
-                )
-                return [f"Title: {r['title']}\nSnippet: {r['body']}" for r in results]
+            engines = 'brave duckduckgo google wikipedia'.split()
+            results = []
+            for engine in engines:
+                try:
+                    with DDGS() as ddgs:
+                        r = list(ddgs.text(
+                            query,
+                            backend=engine,
+                            region='jp-jp',
+                            safesearch='off',
+                            max_results=max_results)
+                        )
+                        results += r
+                except Exception:
+                    pass
+            return [f"Title: {r['title']}\nSnippet: {r['body']}" for r in results]
 
         def summarize_with_ollama(query: str, contexts: list, images: list = []):
             context_text = '\n\n'.join(contexts)
+            name = caches.username
             now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime('%Y年%m月%d日 %H時%M分')
-            prompt = f"""
-あなたは優秀なリサーチアシスタントです。
-名前は「{caches.username}」です。
-今は{now}です。
-以下のコンテキストのみを使用して、ユーザーの質問に対する回答を丁寧な言葉の日本語で作成してください。
-一番最新と思われる事実のみを抽出し、簡潔にまとめることが重要です。
-
-【ユーザーの質問】: {query}
-
-【検索結果】:
-{context_text}
-
-【回答】:
-"""
+            prompt = f'{query}'
+            if os.path.exists('PROMPT.md'):
+                with open('PROMPT.md', encoding='utf-8') as fd:
+                    promptf = fd.read()
+                    prompt = promptf.format(**locals())
             try:
                 response = ollama.generate(
                     model=self.model,
                     prompt=prompt,
                     images=images,
-                    options={'temperature': 0.5},
+                    options={'temperature': 0},
                 )
                 return response.get('response', 'わかりません')
             except Exception as e:
                 return f'Ollamaエラー: {str(e)}'
 
         def search_and_summarize(query: str, images: list) -> str:
-            search_results = search_web(query)
+            search_results = search_web(query, max_results=10)
             if not search_results:
                 return 'よくわかりません'
 

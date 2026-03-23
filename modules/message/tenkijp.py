@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import subprocess
 
+from modules import postMessage
+
 
 class call:
     """天気<観測地点> [tenki.jpの2週間天気URL] : 天気予報を表示 [登録]"""
@@ -25,10 +27,11 @@ class call:
             if not tenkijp:
                 return
 
-            client.web_client.chat_postMessage(
-                username=loc + 'の' + prefix,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                text=tenkijp,
+            postMessage(
+                client,
+                f'{loc}の{prefix}',
+                caches.icon_emoji,
+                channel,
+                tenkijp,
                 thread_ts=thread_ts,
             )

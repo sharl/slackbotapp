@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from modules import postMessage
+
+
 class call:
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
@@ -27,9 +30,10 @@ class call:
                     channel_id = c_id
                     break
 
-        client.web_client.chat_postMessage(
-            username=caches.username,
-            icon_emoji=caches.icon_emoji,
-            channel=channel_id,
-            text=message,
+        postMessage(
+            client,
+            caches.username,
+            caches.icon_emoji,
+            channel_id,
+            message,
         )
