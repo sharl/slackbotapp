@@ -2,6 +2,7 @@
 import random
 
 from ddgs import DDGS
+from ddgs.exceptions import DDGSException
 
 from modules import postMessage
 
@@ -16,29 +17,40 @@ class call:
 
         suffix = '画像'
         if text.endswith(suffix) and item.get('bot_id') is None:
-            word = text.replace(suffix, '').strip()
-            images = DDGS().images(
-                query=word,
-                region='jp-jp',
-                safesearch='off',
-                page=1,
-                backend='auto',
-            )
+            word = text.removesuffix(suffix).strip()
+            images = []
+            try:
+                images = DDGS().images(
+                    query=word,
+                    region='jp-jp',
+                    safesearch='off',
+                    page=1,
+                    backend='auto',
+                )
+            except DDGSException:
+                pass
+
             if images:
                 random.shuffle(images)
                 link = images[0].get('image')
-                postMessage(
-                    client,
-                    word,
-                    caches.icon_emoji,
-                    channel,
-                    text,
-                    blocks=[
-                        {
-                            'type': 'image',
-                            'image_url': link,
-                            'alt_text': word,
-                        },
-                    ],
-                    thread_ts=thread_ts,
-                )
+                blocks = [
+                    {
+                        'type': 'image',
+                        'image_url': link,
+                        'alt_text': word,
+                    },
+                ]
+                message = word
+            else:
+                blocks = []
+                message = '今回は見つからなかったのだ'
+
+            postMessage(
+                client,
+                word,
+                caches.icon_emoji,
+                channel,
+                message,
+                blocks=blocks,
+                thread_ts=thread_ts,
+            )
