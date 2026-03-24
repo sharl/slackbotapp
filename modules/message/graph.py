@@ -88,7 +88,22 @@ class call:
                                 data = await response.json()
                                 for tim in data.keys():
                                     if param in data[tim]:
-                                        time_data[tim] = data[tim][param][0]
+                                        # AQC (Automatic Quality Control) 識別符号
+                                        # https://www.data.jma.go.jp/stats/data/mdrr/man/remark.html
+                                        # https://www.data.jma.go.jp/suishin/shiyou/pdf/no13301
+                                        # 0 正常
+                                        # 1 準正常 (やや疑わしい)
+                                        # 2 非常に疑わしい
+                                        # 3 利用に適さない
+                                        # 4 観測値は期間内で資料数が不足している
+                                        # 5 点検又は計画休止のため欠測
+                                        # 6 障害のため欠測
+                                        # 7 この要素の観測はしていない
+                                        v, c = data[tim][param]
+                                        if c in [0, 1]:
+                                            time_data[tim] = v
+                                        else:
+                                            time_data[tim] = None
                             else:
                                 print(f"Error: {response.status} for URL: {url}")
                     except aiohttp.ClientError as e:
