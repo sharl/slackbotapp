@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import importlib
 import json
+import mimetypes
 import os
 import sys
 import tempfile
@@ -38,7 +39,7 @@ class WebClient:
         self.encoder = Encoder()
 
     def chat_postMessage(self, **kwargs):
-        print(f"{kwargs.get('username')}> {kwargs.get('text')}")
+        print(f"{kwargs.get('username')}>\n{kwargs.get('text')}")
 
         blocks = kwargs.get('blocks')
         if blocks:
@@ -47,13 +48,20 @@ class WebClient:
                     print(b['text']['text'])
                 url = b.get('image_url')
                 if url:
-                    r = requests.get(url)
-                    with tempfile.NamedTemporaryFile(mode='wb') as t:
-                        t.write(r.content)
-                        self.encoder.encode(t.name)
+                    with requests.get(url, timeout=10) as r:
+                        print(r, url)
+                        with tempfile.NamedTemporaryFile(mode='wb') as t:
+                            t.write(r.content)
+                            self.encoder.encode(t.name)
 
     def files_upload_v2(self, **kwargs):
-        self.encoder.encode(kwargs.get('file'))
+        filename = kwargs.get('file')
+        mime_type = mimetypes.guess_type(filename)[0]
+        print(filename, mime_type)
+        if mime_type.startswith('image'):
+            self.encoder.encode(filename)
+        elif mime_type.startswith('audio'):
+            pass
 
     def reactions_add(self, **kwargs):
         print('reactions_add', kwargs)
@@ -86,7 +94,7 @@ caches.display_names = {dummy_user_key: os.environ.get('USER')}
 
 module = sys.argv[1].replace('.py', '').replace('/', '.')
 m = importlib.import_module(f'{module}')
-req.payload['event']['text'] = sys.argv[2]
+req.payload['event']['text'] = ' '.join(sys.argv[2:])
 req.payload['event']['user'] = dummy_user_key
 
 m.call(client, req, options=options.get(module.replace('modules.', ''), {}), caches=caches)
