@@ -5,7 +5,7 @@ from tenacity import retry, wait_fixed, stop_after_attempt
 
 
 @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
-def uploadFile(client, username, icon_emoji, channel_id, filename, title, thread_ts=None):
+def uploadFile(client, username, icon_emoji, channel_id, title, filename, thread_ts=None):
     print('try', title, filename)
     client.web_client.files_upload_v2(
         username=username,
