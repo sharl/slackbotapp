@@ -7,6 +7,8 @@ import os
 
 import requests
 
+from modules import uploadFile
+
 TIMEOUT = 120
 
 
@@ -61,12 +63,13 @@ class call:
                     with open(outfile, 'wb') as fd:
                         fd.write(decoded_data)
 
-                    client.web_client.files_upload_v2(
-                        username=keyword,
-                        icon_emoji=caches.icon_emoji,
-                        channel=channel,
-                        file=outfile,
-                        title=desc,
+                    uploadFile(
+                        client,
+                        keyword,
+                        caches.icon_emoji,
+                        channel,
+                        desc,
+                        outfile,
                         thread_ts=thread_ts,
                     )
                     os.unlink(outfile)

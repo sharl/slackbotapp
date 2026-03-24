@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import subprocess
 
+from modules import uploadFile
+
 
 class call:
     """アメッシュ : アメッシュ画像を表示"""
@@ -15,11 +17,12 @@ class call:
             amesh = subprocess.check_output(['amesh', '-c'])
             with open('/tmp/amesh.png', 'wb') as fd:
                 fd.write(amesh)
-            client.web_client.files_upload_v2(
-                username=keyword,
-                icon_emoji=caches.icon_emoji,
-                channel=channel,
-                file='/tmp/amesh.png',
-                title='amesh',
+            uploadFile(
+                client,
+                keyword,
+                caches.icon_emoji,
+                channel,
+                'amesh',
+                '/tmp/amesh.png',
                 thread_ts=thread_ts,
             )

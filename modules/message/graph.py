@@ -8,6 +8,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
+from modules import uploadFile
+
 
 font_prop = FontProperties(fname='/usr/share/fonts/truetype/migmix/migu-1p-regular.ttf')
 mpl.rcParams["font.family"] = font_prop.get_name()
@@ -206,11 +208,12 @@ class call:
                         plt.savefig(f)
                         plt.close()
 
-                        client.web_client.files_upload_v2(
-                            username=title,
-                            icon_emoji=caches.icon_emoji,
-                            channel=channel,
-                            file=f,
-                            title=title,
+                        uploadFile(
+                            client,
+                            title,
+                            caches.icon_emoji,
+                            channel,
+                            title,
+                            f,
                             thread_ts=thread_ts,
                         )

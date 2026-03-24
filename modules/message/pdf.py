@@ -7,6 +7,8 @@ from tempfile import mkstemp
 import requests
 import pypdfium2 as pdfium
 
+from modules import uploadFile
+
 
 class call:
     def __init__(self, client, req, options=None, caches={}):
@@ -27,12 +29,13 @@ class call:
                     bitmap = pdf[0].render()    # scale=1
                     image = bitmap.to_pil()
                     image.save(outfile)
-                    client.web_client.files_upload_v2(
-                        username=caches.username,
-                        icon_emoji=caches.icon_emoji,
-                        channel=channel,
-                        file=outfile,
-                        title='image.png',
+                    uploadFile(
+                        client,
+                        caches.username,
+                        caches.icon_emoji,
+                        channel,
+                        'image.png',
+                        outfile,
                         thread_ts=thread_ts,
                     )
                     os.unlink(outfile)
