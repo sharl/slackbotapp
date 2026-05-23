@@ -172,11 +172,16 @@ class call:
                         def mmddHHMM(tim):
                             return f'{tim[4:6]}/{tim[6:8]} {tim[8:10]}:{tim[10:12]}'
 
+                        styles = {
+                            '000000': 'dotted',
+                            '120000': 'dashdot',
+                        }
                         atim = []
                         atic = []
                         for tim in xs:
-                            if tim.endswith('000000') or tim.endswith('120000'):
-                                plt.vlines(tim, ymin, ymax, colors='gray', linestyle='dotted')
+                            if tim.endswith(tuple(styles)):
+                                style = styles[tim[-6:]]
+                                plt.vlines(tim, ymin, ymax, color='lightgray', alpha=0.6, lw=1, linestyle=style)
                                 if int(xmax) - int(tim) > 60000:        # 6時間?
                                     atim.append(tim)
                                     atic.append(mmddHHMM(tim))
