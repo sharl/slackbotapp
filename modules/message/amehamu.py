@@ -79,6 +79,12 @@ class call:
                     if og_image is None:
                         return
                     img_url = og_image.get('content')
+
+                    mapFailureInfo = soup.find('div', class_='mapFailureInfo')
+                    if mapFailureInfo:
+                        failure = mapFailureInfo.text.strip()
+                        title = f'{failure} {title}'
+
                     postMessage(
                         client,
                         keyword,
