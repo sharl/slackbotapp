@@ -338,8 +338,10 @@ class call:
                 te = r' (2[5-9])' + do
                 # 5度未満
                 mi = r' (-\d+|[0-4])' + do
-                # 80% 以上
-                hu = r'(8|9|10).%'
+                # 80% 以上 100% 未満
+                hu = r'(8|9).%'
+                # 100%
+                sw = '100%'
                 # 10m/s 以上
                 wi = r'\d\d(\.\d)?m/s'
                 # 10mm/h 以上
@@ -354,6 +356,7 @@ class call:
                     te: ':fire:',
                     mi: ':ice_cube:',
                     hu: ':droplet:',
+                    sw: ':sweat_drops:',
                     ra: ':rain_cloud:',
                     wi: ':fish_cake:',
                     sn: ':snowflake:',
