@@ -324,6 +324,33 @@ class call:
                                         lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
                         except Exception:
                             pass
+
+                    # ------------------------------------------------------------
+                    cmps = {
+                        '最高気温': [0, 1],
+                        '最低気温高': [0, 1],
+                        '最低気温': [-1, 0],
+                        '最高気温低': [-1, 0],
+                    }
+                    if _loc.startswith(tuple(cmps.keys())):
+                        regex = re.compile(r'^([\d\.]*?)度')
+                        m = re.match(regex, lines[-1].split()[2])
+                        if m:
+                            v = float(m[1])
+                            print(v)
+
+                            _lines = []
+                            for line in lines:
+                                mm = re.match(regex, line.split()[2])
+                                if mm:
+                                    a = float(mm[1])
+                                    result = (a >= v) - (a <= v)
+                                    # print(result, result in cmp, a, v)
+                                    if result in cmps[_loc]:
+                                        _lines.append(line)
+                        lines = _lines
+                    # ------------------------------------------------------------
+
                     amedas = '\n'.join(lines)
 
                 # modify message
