@@ -326,29 +326,26 @@ class call:
                             pass
 
                     # ------------------------------------------------------------
-                    cmps = {
-                        '最高気温': [0, 1],
-                        '最低気温高': [0, 1],
-                        '最低気温': [-1, 0],
-                        '最高気温低': [-1, 0],
-                    }
-                    if _loc.startswith(tuple(cmps.keys())):
-                        regex = re.compile(r'^([\d\.]*?)度')
-                        m = re.match(regex, lines[-1].split()[2])
+                    if _loc.startswith(tuple(_keys)):
+                        regex = re.compile(r'(-?[\d\.]+)度')
+                        m = [float(v) for v in re.findall(regex, ' '.join(lines))]
                         if m:
-                            v = float(m[1])
-                            print(v)
+                            # trim average
+                            t = sorted(m)[1:-1]
+                            a = sum(t) / len(t)
+                            # significance level 2
+                            s = max(2, max(abs(max(m) - a), abs(min(m) - a)))
+                            # print(a, s)
 
                             _lines = []
                             for line in lines:
-                                mm = re.match(regex, line.split()[2])
-                                if mm:
-                                    a = float(mm[1])
-                                    result = (a >= v) - (a <= v)
-                                    # print(result, result in cmp, a, v)
-                                    if result in cmps[_loc]:
-                                        _lines.append(line)
-                        lines = _lines
+                                v = float(re.findall(regex, line)[0])
+                                if abs(v - a) < s:
+                                    _lines.append(line)
+                                else:
+                                    print(line)
+
+                            lines = _lines
                     # ------------------------------------------------------------
 
                     amedas = '\n'.join(lines)
