@@ -330,18 +330,25 @@ class call:
                         regex = re.compile(r'(-?[\d\.]+)度')
                         m = [float(v) for v in re.findall(regex, ' '.join(lines))]
                         if m:
-                            # trim average
-                            t = sorted(m)[1:-1]
-                            a = sum(t) / len(t)
-                            # significance level 2
-                            s = max(2, max(abs(max(m) - a), abs(min(m) - a)))
-                            # print(a, s)
+                            tops = len(loc.split())
+                            t = sorted(m, reverse=True)[:tops]
+                            minv = min(t)
+                            maxv = max(t)
+
+                            tmp = False
+                            if _loc in ['最高気温', '最低気温']:
+                                _top = maxv if _loc == '最高気温' else minv
+                                _top = f'{_top}'.replace('.0', '')
+                                tmp = f'{_top}度'
 
                             _lines = []
                             for line in lines:
                                 v = float(re.findall(regex, line)[0])
-                                if abs(v - a) < s:
-                                    _lines.append(line)
+                                if minv <= v <= maxv:
+                                    if tmp:
+                                        _lines.append(line.replace(tmp, tmp + ':crown:'))
+                                    else:
+                                        _lines.append(line)
                                 else:
                                     print(line)
 
