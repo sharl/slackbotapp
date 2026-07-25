@@ -335,14 +335,22 @@ class call:
                             minv = min(t)
                             maxv = max(t)
 
+                            order = False
+                            order = True if _loc.startswith('最高気温') else False
                             tmp = False
                             if _loc in ['最高気温', '最低気温']:
-                                _top = maxv if _loc == '最高気温' else minv
+                                if _loc == '最高気温':
+                                    _top = maxv
+                                    order = True
+                                else:
+                                    _top = minv
+                                    order = False
+
                                 _top = f'{_top}'.replace('.0', '')
                                 tmp = f'{_top}度'
 
                             _lines = []
-                            for line in lines:
+                            for line in sorted(lines, key=lambda x: float(re.match(regex, x.split()[2])[1]), reverse=order):
                                 v = float(re.findall(regex, line)[0])
                                 if minv <= v <= maxv:
                                     if tmp:
