@@ -335,8 +335,7 @@ class call:
                             minv = min(t)
                             maxv = max(t)
 
-                            order = False
-                            order = True if _loc.startswith(('最高気温', '積雪深')) else False
+                            order = True if _loc in ['最高気温', '最低気温高', '積雪深'] else False
                             tmp = False
                             if _loc in ['最高気温', '最低気温']:
                                 if _loc == '最高気温':
