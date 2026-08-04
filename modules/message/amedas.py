@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import datetime as dt
+import math
+import os
 import re
 import subprocess
-import math
-import datetime as dt
 
 import requests
 from bs4 import BeautifulSoup
@@ -34,12 +35,25 @@ class Amedas:
                     if elem[0] == '1':
                         maps[code] = (name, lat, lng)
 
-    def getLocation(self, name):
+    def getLocation(self, name, airports={}):
         locs = {}
+        if not airports:
+            with open(f'{os.environ["HOME"]}/.amedas') as fd:
+                for line in fd.read().split('\n'):
+                    if line:
+                        tmp = line.split()
+                        _name, _code = tmp[0], tmp[1]
+                        if _name.endswith('空港'):
+                            airports[_name] = _code
+
         for _name in name.split():
             for code in maps:
                 if maps[code][0] == _name:
                     locs[code] = maps[code]
+            if _name in airports:
+                _code = airports[_name]
+                locs[_code] = maps[_code]
+
         return locs
 
     def getNearLocation(self, name):
