@@ -19,7 +19,6 @@ def uploadFile(client, username, icon_emoji, channel_id, title, filename, thread
 
 @retry(wait=wait_fixed(1), stop=stop_after_attempt(10))
 def postMessage(client, username, icon_emoji, channel_id, text, blocks=[], thread_ts=None, unfurl_links=False):
-    print('try', text, blocks)
     client.web_client.chat_postMessage(
         username=username,
         icon_emoji=icon_emoji,
