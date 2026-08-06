@@ -4,22 +4,95 @@ from bs4 import BeautifulSoup
 
 from modules import postMessage
 
+LIST_URL = 'https://typhoon.yahoo.co.jp/weather/jp/earthquake/list/'
+API_URL = 'http://192.168.0.1:15678/api'
+QUAKE_CLASS = '1 2 3 4 5弱 5強 6弱 6強 7'.split()
+
 
 class call:
-    """地震[地域]"""
+    """地震 : 直近 5 件を表示
+地震<地域名> : 最新の地域名の地震を表示
+震度 : お知らせする最低震度を表示
+震度<震度> : お知らせする最低震度を設定"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
-        text = item['text']
+        text = item['text'].strip()
         channel = item['channel']
         thread_ts = item.get('thread_ts')
 
+        # ------------------------------------------------------------
+        intensity = None
+        intensity_prefix = '震度'
+        if text.startswith(intensity_prefix) and item.get('bot_id') is None:
+            url = f'{API_URL}/intensity'
+            # get current intensity
+            try:
+                with requests.get(url, timeout=3) as r:
+                    intensity = r.json().get('state')
+            except Exception:
+                pass
+
+            _intensity = text.removeprefix(intensity_prefix).strip()
+            if _intensity:
+                if _intensity == intensity:
+                    postMessage(
+                        client,
+                        intensity_prefix,
+                        caches.icon_emoji,
+                        channel,
+                        f'現在お知らせする震度は {intensity} 以上に設定済みです',
+                        thread_ts=thread_ts,
+                    )
+                    return
+
+                # set intensity
+                user_id = item.get('user')
+                username = caches.user_ids.get(user_id)
+                if isinstance(options, dict):
+                    ouser = options.get('user', '---')
+                    if ouser != username:
+                        print(intensity_prefix, ouser, username)
+                        return
+
+                    if _intensity in QUAKE_CLASS:
+                        try:
+                            with requests.post(
+                                    url,
+                                    json={'intensity': _intensity},
+                                    timeout=3,
+                            ) as r:
+                                postMessage(
+                                    client,
+                                    intensity_prefix,
+                                    caches.icon_emoji,
+                                    channel,
+                                    f'お知らせする震度を {_intensity} 以上に設定しました',
+                                    thread_ts=thread_ts,
+                                )
+                        except Exception as e:
+                            print(intensity_prefix, e)
+
+                return
+            else:
+                if intensity:
+                    postMessage(
+                        client,
+                        intensity_prefix,
+                        caches.icon_emoji,
+                        channel,
+                        f'お知らせする震度は {intensity} 以上です',
+                        thread_ts=thread_ts,
+                    )
+                return
+
+        # ------------------------------------------------------------
+
         prefix = '地震'
-        url = 'https://typhoon.yahoo.co.jp/weather/jp/earthquake/list/'
         if text.startswith(prefix) and item.get('bot_id') is None:
             loc = text.removeprefix(prefix).strip()
 
             trs = []
-            with requests.get(url, timeout=10) as r:
+            with requests.get(LIST_URL, timeout=10) as r:
                 soup = BeautifulSoup(r.content, 'html.parser')
                 trs = soup.find_all('tr', bgcolor='#ffffff', valign='middle')
 
@@ -45,6 +118,16 @@ class call:
                     if _anm.text.startswith(loc):
                         lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
                         break
+
+            # 幅揃え
+            ml = len(max([line.split()[2] for line in lines]))
+            _lines = []
+            for line in lines:
+                ps = line.split()
+                ln = len(ps[2])
+                s = (ml - ln) * '\u3000'
+                _lines.append(f'{ps[0]} {ps[1]} {ps[2] + s} {ps[3]} {ps[4]}')
+            lines = _lines
 
             if lines:
                 quakes = '\n'.join(lines)
