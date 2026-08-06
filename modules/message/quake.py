@@ -121,7 +121,7 @@ class call:
 
             # 幅揃え
             try:
-                ml = len(max([line.split()[2] for line in lines]))
+                ml = max([len(line.split()[2]) for line in lines])
                 _lines = []
                 for line in lines:
                     ps = line.split()
