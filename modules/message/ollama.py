@@ -83,7 +83,10 @@ class call:
                     model=self.model,
                     prompt=prompt,
                     images=images,
-                    options={'temperature': 0},
+                    options={
+                        'temperature': 0,
+                        'think': False,
+                    },
                 )
                 return response.get('response', 'わかりません')
             except Exception as e:
