@@ -127,7 +127,7 @@ class call:
                     ps = line.split()
                     ln = len(ps[2])
                     s = (ml - ln) * '\u3000'
-                    _lines.append(f'{ps[0]} {ps[1]} {ps[2] + s} {ps[3]} {ps[4]}')
+                    _lines.append(f'{ps[0]} {ps[1]: >8} {ps[2] + s} {ps[3]} {ps[4]}')
                 lines = _lines
             except ValueError:
                 pass
