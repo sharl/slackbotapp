@@ -120,14 +120,17 @@ class call:
                         break
 
             # 幅揃え
-            ml = len(max([line.split()[2] for line in lines]))
-            _lines = []
-            for line in lines:
-                ps = line.split()
-                ln = len(ps[2])
-                s = (ml - ln) * '\u3000'
-                _lines.append(f'{ps[0]} {ps[1]} {ps[2] + s} {ps[3]} {ps[4]}')
-            lines = _lines
+            try:
+                ml = len(max([line.split()[2] for line in lines]))
+                _lines = []
+                for line in lines:
+                    ps = line.split()
+                    ln = len(ps[2])
+                    s = (ml - ln) * '\u3000'
+                    _lines.append(f'{ps[0]} {ps[1]} {ps[2] + s} {ps[3]} {ps[4]}')
+                lines = _lines
+            except ValueError:
+                pass
 
             if lines:
                 quakes = '\n'.join(lines)
