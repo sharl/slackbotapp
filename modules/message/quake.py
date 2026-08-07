@@ -146,8 +146,16 @@ class call:
                         if maxs[a] >= 7 or maxs[a] < 5:
                             m = int(maxs[a])
                         lines.append(f'{a + s} {sums[a]:>3} M{mags[a]:.1f} {m:^3}')
-                    print('\n'.join(lines))
-                    exit()
+
+                    postMessage(
+                        client,
+                        prefix,
+                        caches.icon_emoji,
+                        channel,
+                        f'```\n{"\n".join(lines)}\n```',
+                        thread_ts=thread_ts,
+                    )
+                    return
 
                 for tr in trs:
                     tds = tr.find_all('td')
