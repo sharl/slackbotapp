@@ -11,6 +11,7 @@ QUAKE_CLASS = '1 2 3 4 5弱 5強 6弱 6強 7'.split()
 
 class call:
     """地震 : 直近 5 件を表示
+地震回数 : 直近100件の発生回数を表示(上位10件)
 地震<地域名> : 最新の地域名の地震を表示
 震度 : お知らせする最低震度を表示
 震度<震度> : お知らせする最低震度を設定"""
@@ -111,6 +112,43 @@ class call:
                     link = 'https://typhoon.yahoo.co.jp' + _dt.a.get('href')
                     lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
             else:
+                if loc == '回数':
+                    sums = {}
+                    mags = {}
+                    ints = {}
+                    maxs = {}
+                    for tr in trs:
+                        tds = tr.find_all('td')
+                        _dt, _anm, _mag, _int = tds
+                        anm = _anm.text
+                        mag = float(_mag.text.removeprefix('M'))
+                        inn = float(_int.text.replace('弱', '').replace('強', '.5'))
+                        if anm not in sums:
+                            sums[anm] = 0
+                            mags[anm] = 0
+                            ints[anm] = 0
+                            maxs[anm] = 0
+                        sums[anm] += 1
+                        if mag > mags[anm]:
+                            mags[anm] = mag
+                        ints[anm] += inn
+                        if inn > maxs[anm]:
+                            maxs[anm] = inn
+
+                    ml = max([len(k) for k in sums])
+                    lines = [
+                        f'地域名{(ml - 3) * "\u3000"}\u3000\u3000\u3000\u3000\u3000震度'
+                    ]
+                    for a in sorted(sums, reverse=True, key=lambda x: sums[x])[:10]:
+                        ln = len(a)
+                        s = (ml - ln) * '\u3000'
+                        m = str(maxs[a]).replace('.0', '弱').replace('.5', '強')
+                        if maxs[a] >= 7 or maxs[a] < 5:
+                            m = int(maxs[a])
+                        lines.append(f'{a + s} {sums[a]:>3} M{mags[a]:.1f} {m:^3}')
+                    print('\n'.join(lines))
+                    exit()
+
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
