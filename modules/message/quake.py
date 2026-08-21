@@ -109,7 +109,7 @@ class call:
                 for tr in trs[:limit]:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
-                    link = 'https://typhoon.yahoo.co.jp' + _dt.a.get('href')
+                    link = _dt.a.get('href')
                     lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
             else:
                 if loc == '回数':
@@ -121,8 +121,14 @@ class call:
                         tds = tr.find_all('td')
                         _dt, _anm, _mag, _int = tds
                         anm = _anm.text
-                        mag = float(_mag.text.removeprefix('M'))
-                        inn = float(_int.text.replace('弱', '').replace('強', '.5'))
+                        try:
+                            mag = float(_mag.text.removeprefix('M'))
+                        except ValueError:
+                            mag = 0
+                        try:
+                            inn = float(_int.text.replace('弱', '').replace('強', '.5'))
+                        except ValueError:
+                            inn = 0
                         if anm not in sums:
                             sums[anm] = 0
                             mags[anm] = 0
@@ -160,7 +166,7 @@ class call:
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
-                    link = 'https://typhoon.yahoo.co.jp' + _dt.a.get('href')
+                    link = _dt.a.get('href')
                     if _anm.text.startswith(loc):
                         lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
                         break
