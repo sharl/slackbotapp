@@ -202,7 +202,7 @@ class call:
                                 prefix,
                                 caches.icon_emoji,
                                 channel,
-                                f'{loc} {subloc} なぜかないのだ ({" ".join(areas)})',
+                                f'{loc} に {subloc} はありません\n{"\n".join(areas)}',
                                 thread_ts=thread_ts,
                             )
                             return
