@@ -106,11 +106,16 @@ class call:
             #     <td align="center">1</td>
             # ]
             if not loc:
-                for tr in trs[:limit]:
+                for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
+                    if _anm.text == '---':
+                        continue
                     link = _dt.a.get('href')
                     lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
+
+                    if len(lines) >= limit:
+                        break
             else:
                 if loc == '回数':
                     sums = {}
