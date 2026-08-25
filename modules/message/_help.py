@@ -7,7 +7,8 @@ class call:
         item = req.payload['event']
         text = item['text']
         channel = item['channel']
-        thread_ts = item.get('thread_ts')
+        ts = item.get('ts')
+        # thread_ts = item.get('thread_ts')
 
         if text.strip().replace(' ', '') in ['はむ?', 'はむ？']:
             postMessage(
@@ -16,5 +17,5 @@ class call:
                 caches.icon_emoji,
                 channel,
                 caches.doc,
-                thread_ts=thread_ts,
+                thread_ts=ts,
             )
