@@ -12,7 +12,7 @@ QUAKE_CLASS = '1 2 3 4 5弱 5強 6弱 6強 7'.split()
 class call:
     """地震 : 直近 5 件を表示
 地震回数 : 直近100件の発生回数を表示(上位10件)
-地震<地域名> : 最新の地域名の地震を表示
+地震<名称> : 直近の名称を含む地震を表示(上位10件)
 震度 : お知らせする最低震度を表示
 震度<震度> : お知らせする最低震度を設定"""
     def __init__(self, client, req, options=None, caches={}):
@@ -168,13 +168,15 @@ class call:
                     )
                     return
 
+                limit = 10
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
                     link = _dt.a.get('href')
-                    if _anm.text.startswith(loc):
+                    if loc in _anm.text:
                         lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
-                        break
+                        if len(lines) >= limit:
+                            break
 
             # 幅揃え
             try:
