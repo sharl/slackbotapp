@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from urllib.parse import quote
+import json
+import os
 import re
 
 import requests
 from bs4 import BeautifulSoup
 
 from modules import postMessage
+
+mapfile = f'{os.environ["HOME"]}/.amehamu'
 
 
 class call:
@@ -76,6 +80,20 @@ class call:
                                     lat = round(float(_lat), 2)
                                     lng = round(float(_lng), 2)
                                     _ismap = True
+
+                                    # 読み込んで
+                                    data = {}
+                                    try:
+                                        with open(mapfile) as fd:
+                                            data = json.loads(fd.read())
+                                    except Exception:
+                                        pass
+                                    # 登録(上書き)
+                                    data[tmp[0]] = [lat, lng]
+                                    # 保存
+                                    with open(mapfile, 'w') as fd:
+                                        fd.write(json.dumps(data, indent=2, ensure_ascii=False))
+
                                     break
 
                 if len(tmp) == 2:
@@ -96,6 +114,19 @@ class call:
                 _ismap = True
             loc = loc.strip()
             zoom = zoom.strip()
+
+            # 緯度経度決まってないので辞書引いてみる
+            if not (lat and lng):
+                data = {}
+                try:
+                    with open(mapfile) as fd:
+                        data = json.loads(fd.read())
+                except Exception:
+                    pass
+
+                if loc in data:
+                    lat, lng = data[loc]
+                    _ismap = True
 
             print(f'map? {loc=} {lat} {lng} {zoom} {_ismap=}')
 
