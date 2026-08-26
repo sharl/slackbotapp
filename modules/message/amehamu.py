@@ -12,6 +12,23 @@ from modules import postMessage
 mapfile = f'{os.environ["HOME"]}/.amehamu'
 
 
+def load_config():
+    data = {}
+    try:
+        with open(mapfile) as fd:
+            data = json.loads(fd.read())
+    except Exception:
+        pass
+    return data
+
+
+def update_config(loc, lat, lng):
+    data = load_config()
+    data[loc] = [lat, lng]
+    with open(mapfile, 'w') as fd:
+        fd.write(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+
+
 class call:
     """あめはむ[地点][map URL] : 降水状況を表示/登録
 ゆきはむ[地点][map URL] : 降水/降雪状況を表示/登録
@@ -81,19 +98,7 @@ class call:
                                     lng = round(float(_lng), 2)
                                     _ismap = True
 
-                                    # 読み込んで
-                                    data = {}
-                                    try:
-                                        with open(mapfile) as fd:
-                                            data = json.loads(fd.read())
-                                    except Exception:
-                                        pass
-                                    # 登録(上書き)
-                                    data[tmp[0]] = [lat, lng]
-                                    # 保存
-                                    with open(mapfile, 'w') as fd:
-                                        fd.write(json.dumps(data, indent=2, ensure_ascii=False))
-
+                                    update_config(tmp[0], lat, lng)
                                     break
 
                 if len(tmp) == 2:
@@ -117,18 +122,12 @@ class call:
 
             # 緯度経度決まってないので辞書引いてみる
             if not (lat and lng):
-                data = {}
-                try:
-                    with open(mapfile) as fd:
-                        data = json.loads(fd.read())
-                except Exception:
-                    pass
-
+                data = load_config()
                 if loc in data:
                     lat, lng = data[loc]
                     _ismap = True
 
-            print(f'map? {loc=} {lat} {lng} {zoom} {_ismap=}')
+            # print(f'map? {loc=} {lat} {lng} {zoom} {_ismap=}')
 
             if not _ismap:
                 # ジオロケーション発動
