@@ -13,9 +13,9 @@ mapfile = f'{os.environ["HOME"]}/.amehamu'
 
 
 class call:
-    """あめはむ[地点] : 降水状況を表示
-ゆきはむ[地点] : 降水/降雪状況を表示
-サンダー[地点] : 落雷状況を表示"""
+    """あめはむ[地点][map URL] : 降水状況を表示/登録
+ゆきはむ[地点][map URL] : 降水/降雪状況を表示/登録
+サンダー[地点][map URL] : 落雷状況を表示/登録"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
