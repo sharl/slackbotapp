@@ -30,9 +30,9 @@ def update_config(loc, lat, lng):
 
 
 class call:
-    """あめはむ[地点][map URL] : 降水状況を表示/登録
-ゆきはむ[地点][map URL] : 降水/降雪状況を表示/登録
-サンダー[地点][map URL] : 落雷状況を表示/登録"""
+    """あめはむ[地点][拡大率][map URL] : 降水状況を表示/登録
+ゆきはむ[地点][拡大率][map URL] : 降水/降雪状況を表示/登録
+サンダー[地点][拡大率][map URL] : 落雷状況を表示/登録"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
