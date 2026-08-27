@@ -10,9 +10,9 @@ QUAKE_CLASS = '1 2 3 4 5弱 5強 6弱 6強 7'.split()
 
 
 class call:
-    """地震 : 直近 5 件を表示
-地震回数 : 直近100件の発生回数を表示(上位10件)
+    """地震[震度] : (指定震度以上の)直近 5 件を表示
 地震<名称> : 直近の名称を含む地震を表示(上位10件)
+地震回数 : 直近100件の発生回数を表示(上位10件)
 震度 : お知らせする最低震度を表示
 震度<震度> : お知らせする最低震度を設定"""
     def __init__(self, client, req, options=None, caches={}):
@@ -105,11 +105,20 @@ class call:
             #     <td align="center">3.5</td>,
             #     <td align="center">1</td>
             # ]
-            if not loc:
+            if not loc or loc in QUAKE_CLASS:
+                if not loc:
+                    target_intensity = '1'
+                else:
+                    target_intensity = loc
+
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
-                    if _anm.text == '---':
+                    if '---' in [_anm.text, _int.text]:
+                        continue
+                    ii = QUAKE_CLASS.index(_int.text)
+                    ti = QUAKE_CLASS.index(target_intensity)
+                    if ii < ti:
                         continue
                     link = _dt.a.get('href')
                     lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
