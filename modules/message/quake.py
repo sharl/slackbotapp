@@ -12,7 +12,7 @@ QUAKE_CLASS = '1 2 3 4 5弱 5強 6弱 6強 7'.split()
 class call:
     """地震[震度] : (指定震度以上の)直近 5 件を表示
 地震<名称> : 直近の名称を含む地震を表示(上位10件)
-地震回数 : 直近100件の発生回数を表示(上位10件)
+地震回数 : 直近の発生回数を表示(上位10件)
 震度 : お知らせする最低震度を表示
 震度<震度> : お知らせする最低震度を設定"""
     def __init__(self, client, req, options=None, caches={}):
@@ -91,11 +91,19 @@ class call:
         prefix = '地震'
         if text.startswith(prefix) and item.get('bot_id') is None:
             loc = text.removeprefix(prefix).strip()
+            if not loc or loc == '1':
+                target_intensity = '1'
+                qmax = 100
+            else:
+                target_intensity = loc
+                qmax = 800
 
+            session = requests.Session()
             trs = []
-            with requests.get(LIST_URL, timeout=10) as r:
-                soup = BeautifulSoup(r.content, 'html.parser')
-                trs = soup.find_all('tr', bgcolor='#ffffff', valign='middle')
+            for b in range(1, qmax, 100):
+                with session.get(f'{LIST_URL}/?sort=1&key=1&b={b}', timeout=10) as r:
+                    soup = BeautifulSoup(r.content, 'html.parser')
+                    trs += soup.find_all('tr', bgcolor='#ffffff', valign='middle')
 
             limit = 5
             lines = []
@@ -106,11 +114,6 @@ class call:
             #     <td align="center">1</td>
             # ]
             if not loc or loc in QUAKE_CLASS:
-                if not loc:
-                    target_intensity = '1'
-                else:
-                    target_intensity = loc
-
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
