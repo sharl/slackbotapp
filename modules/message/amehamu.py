@@ -59,21 +59,8 @@ class call:
             loc = text.replace(keyword, '').strip()
             if ' ' in loc:
                 tmp = loc.split()
-                # 想定されるパターン
-                # あめはむテレビ塔 https://www.google.co.jp/maps/place/%E3%81%95%E3%81%A3%E3%81%BD%E3%82%8D%E3%83%86%E3%83%AC%E3%83%93%E5%A1%94/@43.0615083,141.3554545,17.83z/data=!3m1!5s0x5f0b299d508fc785:0xa89c33d35137c190!4m6!3m5!1s0x5f0b299d5f87648d:0xe2041a78c3222031!8m2!3d43.0611047!4d141.3564246!16zL20vMDVqMmc1?entry=ttu&g_ep=EgoyMDI2MDgyMy4wIKXMDSoASAFQAw%3D%3D
-                # -> loc, zoom なし, URL の場合
-                # あめはむTDL https://maps.app.goo.gl/ebW2uBvBVRjzzwR49
-                # -> 短縮されているぅ
-
-                # あめはむテレビ塔
-                # あめはむテレビ塔 8
-                # -> 辞書がないのでそのまま
-                # つまり最後が URL なら登録してから loc を調整して従来の処理をすればいいんじゃねえの
-
-                # 何種類か maps の URL あったはず
-                # あとで補完する
                 # URL の取り出しは <(.*?)|abbrev> からやらなければならない
-                m = re.search(r'<(https?://.+)\|?.*?>', tmp[-1])
+                m = re.search(r'<(https://.+)\|?.*?>', tmp[-1])
                 if m:
                     _map = m.group(1).split('|')[0]
                 else:
