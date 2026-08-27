@@ -21,7 +21,7 @@ class call:
         text = item['text']
         channel = item['channel']
         ts = item.get('ts')
-        thread_ts = item.get('thread_ts')
+        # thread_ts = item.get('thread_ts')
 
         def pre(text):
             return f'```\n{text}\n```'
@@ -48,7 +48,8 @@ class call:
                     caches.icon_emoji,
                     channel,
                     text,
-                    thread_ts=thread_ts,
+                    # thread_ts=thread_ts,
+                    thread_ts=ts,
                 )
 
         def search_web(query: str, max_results: int = 5):
