@@ -344,12 +344,12 @@ class call:
                         regex = re.compile(r'(-?[\d\.]+)度')
                         m = [float(v) for v in re.findall(regex, ' '.join(lines))]
                         if m:
+                            order = True if _loc in ['最高気温', '最低気温高', '積雪深'] else False
                             tops = len(loc.split())
-                            t = sorted(m, reverse=True)[:tops]
+                            t = sorted(m, reverse=order)[:tops]
                             minv = min(t)
                             maxv = max(t)
 
-                            order = True if _loc in ['最高気温', '最低気温高', '積雪深'] else False
                             tmp = False
                             if _loc in ['最高気温', '最低気温']:
                                 if _loc == '最高気温':
