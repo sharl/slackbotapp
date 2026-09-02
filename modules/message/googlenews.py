@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-import re
-import json
 from urllib.parse import quote
 
-import requests
 from bs4 import BeautifulSoup
+import feedparser
+import requests
 
 from modules import postMessage
 
+BASE_URL = 'https://news.google.com'
 DEF_KEY = 'journal:'
 DEF_ICON = 'dog'
 DEF_NOTFOUND = 'not found'
 NEWS_LIMIT = 5
-DATE_LIMIT = 3
 
 
 class BreakException(Exception):
@@ -37,49 +36,33 @@ class call:
 
         if text.startswith(keyword) and item.get('bot_id', None) is None:
             query = text.replace(keyword, '')
-            q = quote(query.encode('utf8'))
-            search_url = f'https://news.google.com/search?q={q}&hl=ja&gl=JP&ceid=JP%3Aja'
-            with requests.get(search_url) as r:
+            q = quote(query.encode('utf-8'))
+            search_url = f'{BASE_URL}/search?q={q}&hl=ja&gl=JP&ceid=JP%3Aja'
+            with requests.get(search_url, timeout=10) as r:
                 soup = BeautifulSoup(r.content, 'html.parser')
-                p = soup.find('script', class_='ds:2')
-                if p:
-                    # {key: 'ds:2', hash: '3', data:["gsrre
-                    # , sideChannel: {}}
-                    j = p.text.replace('AF_initDataCallback(', '').replace(');', '')
-                    m = re.search('^{.*?data:(.*),.*$', j)
-                    data = json.loads(m.group(1))
+                atom = soup.find('link', type='application/atom+xml')
+                _link = atom.get('href')
+                full = feedparser.parse(f'{BASE_URL}{_link}')
+                entries = full.entries
 
-                    # make body list
-                    lines = []
-                    # now = int(datetime.timestamp(datetime.now()))
-                    if data[1]:
-                        try:
-                            for n in data[1][0]:
-                                if isinstance(n, list):
-                                    for m in n:
-                                        if isinstance(m, list):
-                                            if isinstance(m[2], str):
-                                                # timestamp = m[4][0]
-                                                # if now - timestamp > DATE_LIMIT * 86400:
-                                                #     continue
-                                                title = m[2]
-                                                url = m[6]
-                                                line = f':{emoji}: <{url}|{title}>'
-                                                lines.append(line)
-                                                if len(lines) >= NEWS_LIMIT:
-                                                    raise BreakException
-                        except BreakException:
-                            pass
+                lines = []
+                for entry in sorted(entries, key=lambda x: x.updated, reverse=True):
+                    title = entry.title
+                    if query in title:
+                        link = entry.link
+                        lines.append(f':{emoji}: <{link}|{title}>')
+                        if len(lines) >= NEWS_LIMIT:
+                            break
 
-                    if not lines:
-                        lines = [notfound]
+                if not lines:
+                    lines = [notfound]
 
-                    postMessage(
-                        client,
-                        f'『{query}』のニュース',
-                        emoji,
-                        channel,
-                        '\n'.join(lines),
-                        thread_ts=thread_ts,
-                        unfurl_links=False,
-                    )
+                postMessage(
+                    client,
+                    f'『{query}』のニュース',
+                    emoji,
+                    channel,
+                    '\n'.join(lines),
+                    thread_ts=thread_ts,
+                    unfurl_links=False,
+                )
