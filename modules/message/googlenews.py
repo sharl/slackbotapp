@@ -48,11 +48,10 @@ class call:
                 lines = []
                 for entry in sorted(entries, key=lambda x: x.updated, reverse=True):
                     title = entry.title
-                    if query in title:
-                        link = entry.link
-                        lines.append(f':{emoji}: <{link}|{title}>')
-                        if len(lines) >= NEWS_LIMIT:
-                            break
+                    link = entry.link
+                    lines.append(f':{emoji}: <{link}|{title}>')
+                    if len(lines) >= NEWS_LIMIT:
+                        break
 
                 if not lines:
                     lines = [notfound]
