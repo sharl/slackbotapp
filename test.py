@@ -8,6 +8,7 @@ import sys
 import tempfile
 
 from libsixel.encoder import Encoder
+import emoji
 import requests
 
 from modules import Caches
@@ -39,7 +40,7 @@ class WebClient:
         self.encoder = Encoder()
 
     def chat_postMessage(self, **kwargs):
-        print(f"{kwargs.get('username')}>\n{kwargs.get('text')}")
+        print(f"{kwargs.get('username')}>\n{emoji.emojize(kwargs.get('text'), language='alias')}")
 
         blocks = kwargs.get('blocks')
         if blocks:
