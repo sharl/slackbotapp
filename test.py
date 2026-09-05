@@ -21,9 +21,16 @@ def slack_emojizer():
     slack_dict = {}
     pattern = re.compile(r':[a-zA-Z0-9_+-]+:')
 
-    url = 'https://raw.githubusercontent.com/iamcal/emoji-data/refs/heads/master/emoji.json'
-    with requests.get(url, timeout=10) as r:
-        emoji_data = r.json()
+    if not os.path.exists('emoji.json'):
+        url = 'https://raw.githubusercontent.com/iamcal/emoji-data/refs/heads/master/emoji.json'
+        with requests.get(url, timeout=10) as r:
+            emoji_data = r.json()
+        with open('emoji.json', 'w') as fd:
+            fd.write(json.dumps(emoji_data, separators=(',', ':'), ensure_ascii=False))
+    else:
+        with open('emoji.json') as fd:
+            emoji_data = json.loads(fd.read())
+
     for item in emoji_data:
         try:
             emoji_char = ''.join(chr(int(code, 16)) for code in item['unified'].split('-'))
