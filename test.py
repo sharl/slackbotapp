@@ -18,27 +18,35 @@ def slack_emojizer():
     """
     Slack の :shortname: が反映されている 2026/09/06
     """
+    filename = 'emoji.json'
+    dictfile = 'dictmap.json'
     slack_dict = {}
     pattern = re.compile(r':[a-zA-Z0-9_+-]+:')
 
-    if not os.path.exists('emoji.json'):
-        url = 'https://raw.githubusercontent.com/iamcal/emoji-data/refs/heads/master/emoji.json'
-        with requests.get(url, timeout=10) as r:
-            emoji_data = r.json()
-        with open('emoji.json', 'w') as fd:
-            fd.write(json.dumps(emoji_data, separators=(',', ':'), ensure_ascii=False))
+    if not os.path.exists(dictfile):
+        if not os.path.exists(filename):
+            url = 'https://raw.githubusercontent.com/iamcal/emoji-data/refs/heads/master/emoji.json'
+            with requests.get(url, timeout=10) as r:
+                emoji_data = r.json()
+            with open(filename, 'w') as fd:
+                fd.write(json.dumps(emoji_data, separators=(',', ':'), ensure_ascii=False))
+        else:
+            with open(filename) as fd:
+                emoji_data = json.loads(fd.read())
+
+        for item in emoji_data:
+            try:
+                emoji_char = ''.join(chr(int(code, 16)) for code in item['unified'].split('-'))
+            except (ValueError, KeyError):
+                continue
+
+            for short_name in item.get('short_names', []):
+                slack_dict[f':{short_name}:'] = emoji_char
+        with open(dictfile, 'w') as fd:
+            fd.write(json.dumps(slack_dict, separators=(',', ':'), ensure_ascii=False))
     else:
-        with open('emoji.json') as fd:
-            emoji_data = json.loads(fd.read())
-
-    for item in emoji_data:
-        try:
-            emoji_char = ''.join(chr(int(code, 16)) for code in item['unified'].split('-'))
-        except (ValueError, KeyError):
-            continue
-
-        for short_name in item.get('short_names', []):
-            slack_dict[f':{short_name}:'] = emoji_char
+        with open(dictfile) as fd:
+            slack_dict = json.loads(fd.read())
 
     def emojize(text: str) -> str:
         return pattern.sub(lambda m: slack_dict.get(m.group(0), m.group(0)), text)
