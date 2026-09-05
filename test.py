@@ -4,15 +4,42 @@ import importlib
 import json
 import mimetypes
 import os
+import re
 import sys
 import tempfile
 
 from libsixel.encoder import Encoder
-import emoji
 import requests
 
 from modules import Caches
 
+
+def slack_emojizer():
+    """
+    Slack の :shortname: が反映されている 2026/09/06
+    """
+    slack_dict = {}
+    pattern = re.compile(r':[a-zA-Z0-9_+-]+:')
+
+    url = 'https://raw.githubusercontent.com/iamcal/emoji-data/refs/heads/master/emoji.json'
+    with requests.get(url, timeout=10) as r:
+        emoji_data = r.json()
+    for item in emoji_data:
+        try:
+            emoji_char = ''.join(chr(int(code, 16)) for code in item['unified'].split('-'))
+        except (ValueError, KeyError):
+            continue
+
+        for short_name in item.get('short_names', []):
+            slack_dict[f':{short_name}:'] = emoji_char
+
+    def emojize(text: str) -> str:
+        return pattern.sub(lambda m: slack_dict.get(m.group(0), m.group(0)), text)
+
+    return emojize
+
+
+emojize = slack_emojizer()
 caches = Caches()
 
 with open('config/config.json') as fd:
@@ -40,7 +67,7 @@ class WebClient:
         self.encoder = Encoder()
 
     def chat_postMessage(self, **kwargs):
-        print(f"{kwargs.get('username')}>\n{emoji.emojize(kwargs.get('text'), language='alias')}")
+        print(f"{kwargs.get('username')}>\n{emojize(kwargs.get('text'))}")
 
         blocks = kwargs.get('blocks')
         if blocks:
