@@ -360,7 +360,7 @@ class call:
                                     order = False
 
                                 _top = f'{_top}'.replace('.0', '')
-                                tmp = f'{_top}度'
+                                tmp = f' {_top}度'
 
                             _lines = []
                             for line in sorted(lines, key=lambda x: float(re.match(regex, x.split()[2])[1]), reverse=order):
