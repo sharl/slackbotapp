@@ -141,6 +141,7 @@ class call:
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
                         _ys = [v for v in ys if v is not None]  # 休止中対応
+                        lacks = [tim for tim in xs if time_data[tim] is None]
                         xmin = min(xs)
                         xmax = max(xs)
                         ymin = min(_ys) - 2
@@ -208,6 +209,10 @@ class call:
                             for h in COLORPRECIP:
                                 if ymax >= h:
                                     plt.hlines(h, xmin, xmax, colors=COLORPRECIP[h], lw=2)
+
+                        # 欠落時の時刻にプロット
+                        for tim in lacks:
+                            plt.scatter(tim, ymin + 0.1, marker='x', s=100, color='red')
 
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
