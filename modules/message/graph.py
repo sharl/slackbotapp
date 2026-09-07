@@ -144,16 +144,16 @@ class call:
                         lacks = [tim for tim in xs if time_data[tim] is None]
                         xmin = min(xs)
                         xmax = max(xs)
-                        ymin = min(_ys) - 2
-                        ymax = max(_ys) + 2
+                        ymin = min(_ys, default=0) - 2
+                        ymax = max(_ys, default=0) + 2
 
                         if param == 'humidity':
                             ymax = 100
                             ymin = 0
                         if param == 'snow':
-                            if max(_ys) < 10:
+                            if ymax < 10:
                                 ymax = 10
-                            if min(_ys) <= 10:
+                            if ymin <= 10:
                                 ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
                             ymin = 0
