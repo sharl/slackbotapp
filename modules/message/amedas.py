@@ -329,13 +329,13 @@ class call:
                         cs = _line.split()
                         try:
                             if _loc.startswith('最高気温') and '最高気温' in _line:
-                                lines.append(f'{cs[0]} {key} {cs[-2]} {cs[-1]}')
+                                lines.append(f'{cs[0]} {cs[-2]} {cs[-1]}')
                             elif _loc.startswith('最低気温') and '最低気温' in _line:
-                                lines.append(f'{cs[0]} {key} {cs[-5]} {cs[-4]}')
+                                lines.append(f'{cs[0]} {cs[-5]} {cs[-4]}')
                             elif _loc == '積雪深' and '積雪' in _line:
                                 for i, c in enumerate(cs):
                                     if c == '積雪':
-                                        lines.append(f'{cs[0]} {cs[1]} {key} {cs[i+1]}')
+                                        lines.append(f'{cs[0]} {cs[1]} {cs[i+1]}')
                         except Exception:
                             pass
 
@@ -363,7 +363,8 @@ class call:
                                 tmp = f' {_top}度'
 
                             _lines = []
-                            for line in sorted(lines, key=lambda x: float(re.match(regex, x.split()[2])[1]), reverse=order):
+                            idx = 2 if _loc == '積雪深' else 1
+                            for line in sorted(lines, key=lambda x: float(re.match(regex, x.split()[idx])[1]), reverse=order):
                                 v = float(re.findall(regex, line)[0])
                                 if minv <= v <= maxv:
                                     if tmp:
@@ -435,7 +436,7 @@ class call:
                 if amedas:
                     postMessage(
                         client,
-                        prefix,
+                        f'{prefix}{_loc if _loc in _keys else ""}',
                         caches.icon_emoji,
                         channel,
                         amedas,
