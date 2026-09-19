@@ -15,14 +15,12 @@ CONFIG = '.ollama-model'
 
 
 class call:
-    """はむ、<質問> : Ollama を使用して回答します 「検索」という文字があると検索結果を元に回答を生成します
-    """
+    """はむ、<質問> : Ollama を使用して回答します 「検索」という文字があると検索結果を元に回答を生成します"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
         channel = item['channel']
         ts = item.get('ts')
-        # thread_ts = item.get('thread_ts')
 
         def pre(text):
             return f'```\n{text}\n```'
@@ -208,13 +206,11 @@ class call:
             history = client.web_client.conversations_history(
                 channel=channel,
             )
-            if history:
-                tss = [m['ts'] for m in history['messages']]
-                if ts in tss:
-                    # **hoge** -> hoge
-                    answer = answer.replace('**', '')
-                    post(answer)
+            if history and ts in [m['ts'] for m in history['messages']]:
+                # **hoge** -> hoge
+                answer = answer.replace('**', '')
+                post(answer)
 
-                    reactions_remove('loading')
+                reactions_remove('loading')
 
             return
