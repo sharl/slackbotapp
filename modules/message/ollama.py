@@ -205,10 +205,16 @@ class call:
             else:
                 answer = 'わかりません'
 
-            # **hoge** -> hoge
-            answer = answer.replace('**', '')
-            post(answer)
+            history = client.web_client.conversations_history(
+                channel=channel,
+            )
+            if history:
+                tss = [m['ts'] for m in history['messages']]
+                if ts in tss:
+                    # **hoge** -> hoge
+                    answer = answer.replace('**', '')
+                    post(answer)
 
-            reactions_remove('loading')
+                    reactions_remove('loading')
 
             return
