@@ -15,7 +15,8 @@ CONFIG = '.ollama-model'
 
 
 class call:
-    """はむ、<質問> : Ollama を使用して検索結果を元に回答を生成します"""
+    """はむ、<質問> : Ollama を使用して回答します 「検索」という文字があると検索結果を元に回答を生成します
+    """
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -91,7 +92,7 @@ class call:
                 )
                 return response.get('response', 'わかりません')
             except Exception as e:
-                return f'Ollamaエラー: {str(e)}'
+                return f'search Ollamaエラー: {str(e)}'
 
         def search_and_summarize(query: str, images: list) -> str:
             search_results = search_web(query, max_results=10)
@@ -100,6 +101,21 @@ class call:
 
             summary = summarize_with_ollama(query, search_results, images)
             return summary
+
+        def think(query: str, images: list) -> str:
+            try:
+                response = ollama.generate(
+                    model=self.model,
+                    prompt=query,
+                    images=images,
+                    options={
+                        'temperature': 0,
+                        'think': False,
+                    },
+                )
+                return response.get('response', 'わかりません')
+            except Exception as e:
+                return f'think Ollamaエラー: {str(e)}'
 
         prefix = '{}:'.format(caches.username)
         if options:
@@ -114,7 +130,11 @@ class call:
             with open(CONFIG) as fd:
                 self.model = fd.read().strip()
 
-            print(f'>>> now model {self.model}')
+            self.mode = 'think'
+            if '検索' in prompt:
+                self.mode = 'search'
+
+            print(f'>>> now model {self.model} mode {self.mode}')
 
             # List Local Models
             if prompt == 'モデル一覧':
@@ -178,7 +198,12 @@ class call:
                             images.append(encoded)
                             prompt = prompt.replace(f'<{url}>', '')
 
-            answer = search_and_summarize(prompt, images)
+            if self.mode == 'search':
+                answer = search_and_summarize(prompt, images)
+            elif self.mode == 'think':
+                answer = think(prompt, images)
+            else:
+                answer = 'わかりません'
 
             # **hoge** -> hoge
             answer = answer.replace('**', '')
