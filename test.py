@@ -112,6 +112,15 @@ class WebClient:
     def reactions_remove(self, **kwargs):
         print('reactions_remove', kwargs)
 
+    def conversations_history(self, **kwargs):
+        return {
+            "messages": [
+                {
+                    "ts": None,
+                },
+            ],
+        }
+
 
 class Client:
     def __init__(self):
