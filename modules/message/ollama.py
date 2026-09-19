@@ -205,6 +205,7 @@ class call:
 
             history = client.web_client.conversations_history(
                 channel=channel,
+                limit=10,
             )
             if history and ts in [m['ts'] for m in history['messages']]:
                 # **hoge** -> hoge
@@ -212,5 +213,6 @@ class call:
                 post(answer)
 
                 reactions_remove('loading')
+                del history
 
             return
