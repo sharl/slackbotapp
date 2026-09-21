@@ -3,7 +3,7 @@ from glob import glob
 from random import sample, shuffle
 import copy
 import os
-import time
+# import time
 import shutil
 
 from modules import postMessage
@@ -58,7 +58,7 @@ class call:
             message = self.entryBingo(user_id, username)
         elif text and item.get('bot_id') is None:
             # すべての発言に対して実行(たぶん遅い)
-            start = time.time()
+            # start = time.time()
 
             data = self.loadCards()
             newdata = copy.deepcopy(data)
@@ -97,8 +97,8 @@ class call:
             if newdata != data:
                 self.updateCards(newdata)
 
-            end = time.time()
-            print(f"bingo took {end - start:f} s")
+            # end = time.time()
+            # print(f"bingo took {end - start:f} s")
 
         elif not text and not item.get('blocks') and item.get('bot_id') is None:
             print(item)
