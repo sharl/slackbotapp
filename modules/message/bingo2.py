@@ -100,9 +100,7 @@ class call:
             # end = time.time()
             # print(f"bingo took {end - start:f} s")
 
-        elif not text and not item.get('blocks') and item.get('bot_id') is None:
-            print(item)
-
+        elif not text and not item.get('blocks') and not item.get('files') and item.get('bot_id') is None:
             data = self.loadCards()
             for _id in data:
                 _, _name = _id.split(',')
