@@ -211,8 +211,11 @@ class call:
                                     plt.hlines(h, xmin, xmax, colors=COLORPRECIP[h], lw=2)
 
                         # 欠落時の時刻にプロット
+                        # TODO: auto calc offset
+                        offset = round((ymax - ymin) / 30, 1)
+                        # print(ymax, ymin, offset, ymin + offset)
                         for tim in lacks:
-                            plt.scatter(tim, ymin + 0.1, marker='x', s=100, color='red')
+                            plt.scatter(tim, ymin + offset, marker='x', s=100, color='red')
 
                         f = f'/tmp/graph_{param}_{code}.png'
                         plt.savefig(f)
