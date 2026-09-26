@@ -116,7 +116,7 @@ class call:
                 async def prequests(code, param, time_data):
                     async with aiohttp.ClientSession() as session:
                         tasks = []
-                        for delta in range(16):
+                        for delta in range(17):
                             now = self.now - dt.timedelta(hours=delta * 3) - dt.timedelta(minutes=10)
                             yyyymmdd = now.strftime('%Y%m%d')
                             HH = now.strftime('%H')
