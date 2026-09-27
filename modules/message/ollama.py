@@ -101,10 +101,18 @@ class call:
             return summary
 
         def think(query: str, images: list) -> str:
+            name = caches.username
+            now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime('%Y年%m月%d日 %H時%M分')
+            prompt = f'{query}'
+            if os.path.exists('THINK.md'):
+                with open('THINK.md', encoding='utf-8') as fd:
+                    promptf = fd.read()
+                    prompt = promptf.format(**locals())
+
             try:
                 response = ollama.generate(
                     model=self.model,
-                    prompt=query,
+                    prompt=prompt,
                     images=images,
                     options={
                         'temperature': 0,
