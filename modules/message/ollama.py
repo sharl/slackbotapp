@@ -12,6 +12,8 @@ import requests
 from modules import postMessage
 
 CONFIG = '.ollama-model'
+# レスポンスがこの行数を越えたらスレッドで返事
+TARGET_LINES = 10
 
 
 class call:
@@ -41,14 +43,15 @@ class call:
 
         def post(text):
             if text:
+                lines = len(text.splitlines())
+                target_ts = ts if lines >= TARGET_LINES else None
                 postMessage(
                     client,
                     caches.username,
                     caches.icon_emoji,
                     channel,
                     text,
-                    # thread_ts=thread_ts,
-                    thread_ts=ts,
+                    thread_ts=target_ts,
                 )
 
         def search_web(query: str, max_results: int = 5):
