@@ -5,7 +5,8 @@ import json
 import importlib
 import threading
 
-from bottle import route, run, request, response as bottleResponse
+from bottle import route, run, request, response as bottleResponse, hook, json_dumps
+
 from slack_sdk.errors import SlackApiError
 from slack_sdk.web import WebClient
 from slack_sdk.socket_mode import SocketModeClient
@@ -90,6 +91,19 @@ client.connect()
 caches.updateChannels(client)
 
 
+@hook('after_request')
+def enable_cors():
+    bottleResponse.headers['Access-Control-Allow-Origin'] = '*'
+    bottleResponse.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    bottleResponse.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, content-type, X-Requested-With'
+    bottleResponse.headers['Access-Control-Max-Age'] = '86400'
+
+
+@route('/chat_postMessage', method='OPTIONS')
+def options_handler():
+    return json_dumps({'status': 'ok'})
+
+
 @route('/chat_postMessage', method='POST')
 def post_to_slack():
     """
@@ -111,6 +125,8 @@ def post_to_slack():
             "title": "title",
             "file": filename,
         }
+
+    javascript:(function(){var c=prompt("Channel:","");if(c===null)return;var t=prompt("Text:","");if(t===null)return;if(!t)t=".";var d={"text":t,"image_url":document.URL};if(c)d["channel"]=c;fetch("http://localhost:16543/chat_postMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(res=>{if(res.ok){}else{alert(res.status);}}).catch(err=>{alert("failed");});})();
     """
     try:
         data = request.json
