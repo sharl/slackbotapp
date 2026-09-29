@@ -7,12 +7,11 @@ from modules import postMessage
 
 DAM_URL = 'https://weathernews.jp/dam/json/dam.json'
 DAM_RE = re.compile(r'ダム（?.*')
-maps = {}
 
 
 class call:
     """貯水率<ダム名> : ダムの貯水率を表示"""
-    def __init__(self, client, req, options=None, caches={}):
+    def __init__(self, client, req, options=None, caches={}, maps={}):
         item = req.payload['event']
         text = item['text']
         channel = item['channel']
@@ -23,17 +22,17 @@ class call:
             loc = text.replace(prefix, '').strip()
 
             # ダム名をキャッシュ
-            if not maps:
+            if not maps or loc not in maps:
                 with requests.get(DAM_URL, timeout=10) as r:
                     for dam in r.json()['features']:
                         _name = dam['properties']['name']
                         # 正規化
                         name = re.sub(DAM_RE, '', _name)
                         if name not in maps:
-                            maps[name] = _name
+                            maps.update({name: _name})
                         name2 = name.replace('ヶ', 'ケ')
                         if name2 not in maps:
-                            maps[name2] = _name
+                            maps.update({name2: _name})
                 print(f'maps completed. {len(maps)}')
 
             if loc in maps:
