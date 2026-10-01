@@ -139,16 +139,50 @@ class call:
                         mpl.rcParams['axes.ymargin'] = 0
 
                         # 10分置きに存在するはずのデータがない場合 time_data 補完
-                        x = sorted(time_data.keys())
-                        for d in list(range(int(min(x)), int(max(x)) + 1000, 1000)):
-                            if str(d) not in time_data:
-                                try:
-                                    # 変換してみる
-                                    dt.datetime.strptime(str(d), '%Y%m%d%H%M%S')
-                                    # 正常な時刻なら補完
-                                    time_data[str(d)] = None
-                                except ValueError:
-                                    pass
+                        def fill_lack_time(series: dict) -> list[str]:
+                            import time
+                            begin = time.perf_counter()
+                            errcnt = 0
+
+                            r = range(int(min(series)), int(max(series)) + 1000, 1000)
+                            print(r)
+                            for d in list(r):
+                                # skip illegal month
+                                mm = (d % 10000000000) // 100000000
+                                if mm == 0 or mm > 12:
+                                    continue
+
+                                # skip illegal date
+                                dd = (d % 100000000) // 1000000
+                                if (d % 1_00_00_00_00) > 31_00_00_00 or (d // 1_00_00_00 % 1_00) == 0:
+                                    continue
+                                if (mm in [4, 6, 9, 11] and dd > 30) or (mm == 2 and dd > 29):
+                                    continue
+
+                                # skip illegal hour
+                                HH = (d % 1000000) // 10000
+                                if HH > 23:
+                                    continue
+                                # skip illegal minute
+                                MM = (d % 10000) // 100
+                                if MM > 59:
+                                    continue
+
+                                ds = str(d)
+                                if ds not in series:
+                                    try:
+                                        # 変換してみる
+                                        dt.datetime.strptime(ds, '%Y%m%d%H%M%S')
+                                        # 正常な時刻なら補完
+                                        series[ds] = None
+                                    except ValueError:
+                                        errcnt += 1
+
+                            print(f'{time.perf_counter() - begin:.3f} {errcnt=}')
+                            return series
+
+                        # fill lack time series
+                        time_data = fill_lack_time(time_data)
 
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
