@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import asyncio
 import aiohttp
+import asyncio
 import datetime as dt
+import time
 
 import requests
 import matplotlib as mpl
@@ -140,10 +141,15 @@ class call:
 
                         # 10分置きに存在するはずのデータがない場合 time_data 補完
                         def fill_lack_time(series: dict) -> list[str]:
-                            import time
                             begin = time.perf_counter()
                             errcnt = 0
-                            skpcnt = {}
+                            skpcnt = {
+                                'HH': 0,
+                                'MM': 0,
+                                'mm': 0,
+                                'dd1': 0,
+                                'dd2': 0,
+                            }
 
                             r = range(int(min(series)), int(max(series)) + 1000, 1000)
                             print(r)
@@ -152,39 +158,29 @@ class call:
                                 MM = (d % 10000) // 100
                                 if MM > 59:
                                     # print('minute', MM)
-                                    # if 'MM' not in skpcnt:
-                                    #     skpcnt['MM'] = 0
                                     # skpcnt['MM'] += 1
                                     continue
                                 # skip illegal hour
                                 HH = (d % 1000000) // 10000
                                 if HH > 23:
                                     # print('hour', HH)
-                                    # if 'HH' not in skpcnt:
-                                    #     skpcnt['HH'] = 0
                                     # skpcnt['HH'] += 1
                                     continue
                                 # skip illegal month
                                 mm = (d % 10000000000) // 100000000
                                 # if mm == 0 or mm > 12:
                                 #     print('month', mm)
-                                #     if 'mm' not in skpcnt:
-                                #         skpcnt['mm'] = 0
                                 #     skpcnt['mm'] += 1
                                 #     continue
                                 dd = (d % 100000000) // 1000000
                                 # skip illegal date 2
                                 if (mm in [4, 6, 9, 11] and dd > 30) or (mm == 2 and dd > 29):
                                     # print('date 2', dd)
-                                    # if 'dd2' not in skpcnt:
-                                    #     skpcnt['dd2'] = 0
                                     # skpcnt['dd2'] += 1
                                     continue
                                 # skip illegal date 1
                                 if dd == 0 or dd > 31:
                                     # print('date 1', dd)
-                                    # if 'dd1' not in skpcnt:
-                                    #     skpcnt['dd1'] = 0
                                     # skpcnt['dd1'] += 1
                                     continue
 
@@ -198,7 +194,7 @@ class call:
                                     except ValueError:
                                         errcnt += 1
 
-                            print(f'{time.perf_counter() - begin:.3f} {errcnt=} {skpcnt.keys()}')
+                            print(f'{time.perf_counter() - begin:.4f} {errcnt=} {skpcnt}')
                             return series
 
                         # fill lack time series
