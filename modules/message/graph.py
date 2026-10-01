@@ -141,14 +141,14 @@ class call:
                         # 10分置きに存在するはずのデータがない場合 time_data 補完
                         x = sorted(time_data.keys())
                         for d in list(range(int(min(x)), int(max(x)) + 1000, 1000)):
-                            try:
-                                # 変換してみる
-                                dt.datetime.strptime(str(d), '%Y%m%d%H%M%S')
-                                # 正常な時刻なら補完
-                                if str(d) not in time_data:
+                            if str(d) not in time_data:
+                                try:
+                                    # 変換してみる
+                                    dt.datetime.strptime(str(d), '%Y%m%d%H%M%S')
+                                    # 正常な時刻なら補完
                                     time_data[str(d)] = None
-                            except ValueError:
-                                pass
+                                except ValueError:
+                                    pass
 
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
