@@ -125,6 +125,7 @@ class call:
                 }
                 timeout = 1
                 try:
+                    print('try heartrails')
                     if not (lat and lng):
                         url = 'https://geoapi.heartrails.com/api/json?method=suggest&matching=like&keyword=' + quote(loc.encode('utf8'))
                         with requests.get(url, headers=headers, timeout=timeout) as r:
@@ -138,6 +139,7 @@ class call:
                                         print(loc, title, lat, lng)
                                         break
 
+                    print('try gsi')
                     if not (lat and lng):
                         url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
                         with requests.get(url, headers=headers, timeout=timeout) as r:
@@ -147,6 +149,19 @@ class call:
                                     lng, lat = p['geometry']['coordinates']
                                     title = p['properties']['title']
                                     print(loc, title, lat, lng)
+
+                    print('try openpoi')
+                    if not (lat and lng):
+                        url = 'https://api.openpoiapi.com/v1/search?limit=1&q=' + quote(loc.encode('utf8'))
+                        with requests.get(url, headers=headers, timeout=timeout) as r:
+                            j = r.json()
+                            if j['count']:
+                                p = j['results'][0]
+                                lat = p['lat']
+                                lng = p['lng']
+                                title = p['name']
+                                print(loc, title, lat, lng)
+
                 except Exception:
                     pass
 
