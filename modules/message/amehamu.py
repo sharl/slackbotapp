@@ -139,29 +139,29 @@ class call:
                                         print(loc, title, lat, lng)
                                         break
 
-
                     if not (lat and lng):
                         print('try gsi')
                         url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + quote(loc.encode('utf8'))
                         with requests.get(url, headers=headers, timeout=timeout) as r:
-                            j = r.json()
-                            if isinstance(j, list) and len(j) > 0:
-                                for p in j[0], j[-1]:
+                            for p in r.json():
+                                title = p['properties']['title']
+                                if title.startswith(loc):
                                     lng, lat = p['geometry']['coordinates']
-                                    title = p['properties']['title']
                                     print(loc, title, lat, lng)
+                                    break
 
                     if not (lat and lng):
                         print('try openpoi')
-                        url = 'https://api.openpoiapi.com/v1/search?limit=1&q=' + quote(loc.encode('utf8'))
+                        url = 'https://api.openpoiapi.com/v1/search?&q=' + quote(loc.encode('utf8'))
                         with requests.get(url, headers=headers, timeout=timeout) as r:
                             j = r.json()
-                            if j['count']:
-                                p = j['results'][0]
-                                lat = p['lat']
-                                lng = p['lng']
+                            for p in j['results']:
                                 title = p['name']
-                                print(loc, title, lat, lng)
+                                if title.startswith(loc):
+                                    lat = p['lat']
+                                    lng = p['lng']
+                                    print(loc, title, lat, lng)
+                                    break
 
                 except Exception:
                     pass
