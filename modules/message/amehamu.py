@@ -172,8 +172,8 @@ class call:
             print(loc, title, lat, lng, zoom)
 
             if lat and lng:
-                lat = round(lat, 3)
-                lng = round(lng, 3)
+                lat = round(float(lat), 3)
+                lng = round(float(lng), 3)
                 with requests.get(f'https://weather.yahoo.co.jp/weather/zoomradar/{param}?lat={lat}&lon={lng}&z={zoom}') as r:
                     soup = BeautifulSoup(r.content, 'html.parser')
                     og_image = soup.find('meta', property='og:image')
