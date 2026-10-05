@@ -197,7 +197,7 @@ class call:
                                 ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
                             ymin = 0
-                            plt.bar(xs, ys)
+                            plt.bar(xs, ys, width=1)
                         else:
                             plt.plot(xs, ys)
 
