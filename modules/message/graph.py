@@ -196,8 +196,12 @@ class call:
                             if ymin <= 10:
                                 ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
+                            if param == 'precipitation1h':
+                                xs = [tim for tim in xs if tim.endswith('0000')]
+                                ys = [time_data[tim] for tim in xs]
+
                             ymin = 0
-                            plt.bar(xs, ys, width=1)
+                            plt.bar(xs, ys)
                         else:
                             plt.plot(xs, ys)
 
