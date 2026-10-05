@@ -153,7 +153,7 @@ class call:
 
                             r = range(int(min(series)), int(max(series)) + 1000, 1000)
                             print(r)
-                            for d in list(r):
+                            for d in r:
                                 # skip illegal minute
                                 MM = (d % 10000) // 100
                                 if MM > 59:
