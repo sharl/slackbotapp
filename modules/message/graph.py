@@ -180,6 +180,11 @@ class call:
 
                         xs = sorted(time_data.keys())
                         ys = [time_data[tim] for tim in xs]
+                        if param.endswith('1h'):
+                            # 1時間毎のデータなので間引く
+                            # bar なので None ではなく 0️⃣ に
+                            xs = [tim for tim in xs if tim.endswith('0000')]
+                            ys = [time_data[tim] if time_data[tim] else 0 for tim in xs]
                         _ys = [v for v in ys if v is not None]  # 休止中対応
                         lacks = [tim for tim in xs if time_data[tim] is None]
                         xmin = min(xs)
@@ -196,12 +201,8 @@ class call:
                             if ymin <= 10:
                                 ymin = 0
                         if param.startswith('precipitation') or param == 'snow1h':
-                            if param == 'precipitation1h':
-                                xs = [tim for tim in xs if tim.endswith('0000')]
-                                ys = [time_data[tim] for tim in xs]
-
                             ymin = 0
-                            plt.bar(xs, ys)
+                            plt.bar(xs, ys, align='edge')
                         else:
                             plt.plot(xs, ys)
 
