@@ -182,7 +182,7 @@ class call:
                         ys = [time_data[tim] for tim in xs]
                         if param.endswith('1h'):
                             # 1時間毎のデータなので間引く
-                            # bar なので None ではなく 0️⃣ に
+                            # bar: None -> 0
                             xs = [tim for tim in xs if tim.endswith('0000')]
                             ys = [time_data[tim] if time_data[tim] else 0 for tim in xs]
                         _ys = [v for v in ys if v is not None]  # 休止中対応
