@@ -140,16 +140,8 @@ class call:
                         mpl.rcParams['axes.ymargin'] = 0
 
                         # 10分置きに存在するはずのデータがない場合 time_data 補完
-                        def fill_lack_time(series: dict) -> list[str]:
+                        def fill_lack_time(series: dict) -> dict:
                             begin = time.perf_counter()
-                            errcnt = 0
-                            skpcnt = {
-                                'HH': 0,
-                                'MM': 0,
-                                'mm': 0,
-                                'dd1': 0,
-                                'dd2': 0,
-                            }
 
                             r = range(int(min(series)), int(max(series)) + 1000, 1000)
                             print(r)
@@ -157,44 +149,30 @@ class call:
                                 # skip illegal minute
                                 MM = (d % 10000) // 100
                                 if MM > 59:
-                                    # print('minute', MM)
-                                    # skpcnt['MM'] += 1
                                     continue
                                 # skip illegal hour
                                 HH = (d % 1000000) // 10000
                                 if HH > 23:
-                                    # print('hour', HH)
-                                    # skpcnt['HH'] += 1
                                     continue
                                 # skip illegal month
                                 mm = (d % 10000000000) // 100000000
-                                # if mm == 0 or mm > 12:
-                                #     print('month', mm)
-                                #     skpcnt['mm'] += 1
-                                #     continue
+                                if mm == 0 or mm > 12:
+                                    continue
                                 dd = (d % 100000000) // 1000000
                                 # skip illegal date 2
-                                if (mm in [4, 6, 9, 11] and dd > 30) or (mm == 2 and dd > 29):
-                                    # print('date 2', dd)
-                                    # skpcnt['dd2'] += 1
+                                yy = d // 10000000000
+                                leap = (yy % 4 == 0 and (yy % 100 != 0 or yy % 400 == 0))
+                                if (mm in (4, 6, 9, 11) and dd > 30) or (mm == 2 and dd > (28 + leap)):
                                     continue
                                 # skip illegal date 1
                                 if dd == 0 or dd > 31:
-                                    # print('date 1', dd)
-                                    # skpcnt['dd1'] += 1
                                     continue
 
                                 ds = str(d)
                                 if ds not in series:
-                                    try:
-                                        # 変換してみる
-                                        dt.datetime.strptime(ds, '%Y%m%d%H%M%S')
-                                        # 正常な時刻なら補完
-                                        series[ds] = None
-                                    except ValueError:
-                                        errcnt += 1
+                                    series[ds] = None
 
-                            print(f'{time.perf_counter() - begin:.4f} {errcnt=} {skpcnt}')
+                            print(f'{time.perf_counter() - begin:.4f}')
                             return series
 
                         # fill lack time series
