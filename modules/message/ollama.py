@@ -91,6 +91,7 @@ class call:
                         'temperature': 0,
                         'think': False,
                     },
+                    keep_alive='10m',
                 )
                 return response.get('response', 'わかりません')
             except Exception as e:
