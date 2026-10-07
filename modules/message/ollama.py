@@ -4,6 +4,7 @@ import datetime as dt
 import io
 import os
 import re
+import time
 
 from ddgs import DDGS
 import ollama
@@ -17,7 +18,7 @@ TARGET_LINES = 10
 
 
 class call:
-    """はむ、<質問> : Ollama を使用して回答します 「検索」という文字があると検索結果を元に回答を生成します"""
+    """はむ、<質問> : Ollama を使用して回答します 「検索」「まとめて」という文字があると検索結果を元に回答を生成します"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -140,7 +141,7 @@ class call:
                 self.model = fd.read().strip()
 
             self.mode = 'think'
-            if '検索' in prompt:
+            if '検索' in prompt or 'まとめて' in prompt:
                 self.mode = 'search'
 
             print(f'>>> now model {self.model} mode {self.mode}')
@@ -207,12 +208,14 @@ class call:
                             images.append(encoded)
                             prompt = prompt.replace(f'<{url}>', '')
 
+            begin = time.perf_counter()
             if self.mode == 'search':
                 answer = search_and_summarize(prompt, images)
             elif self.mode == 'think':
                 answer = think(prompt, images)
             else:
                 answer = 'わかりません'
+            print(f'{self.mode} {time.perf_counter() - begin:.3f}s')
 
             history = client.web_client.conversations_history(
                 channel=channel,
@@ -221,8 +224,10 @@ class call:
             if history and ts in [m['ts'] for m in history['messages']]:
                 # **hoge** -> hoge
                 answer = answer.replace('**', '')
+                print('post answer')
                 post(answer)
 
+                print('reactions remove')
                 reactions_remove('loading')
                 del history
 
