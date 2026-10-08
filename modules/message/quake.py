@@ -206,7 +206,7 @@ class call:
             if lines:
                 quakes = '\n'.join(lines)
             else:
-                quakes = '見つかりませんでした'
+                return
             postMessage(
                 client,
                 prefix,
