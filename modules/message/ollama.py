@@ -24,6 +24,7 @@ class call:
         text = item['text']
         channel = item['channel']
         ts = item.get('ts')
+        thread_ts = item.get('thread_ts')
 
         def pre(text):
             return f'```\n{text}\n```'
@@ -45,7 +46,12 @@ class call:
         def post(text):
             if text:
                 lines = len(text.splitlines())
-                target_ts = ts if lines >= TARGET_LINES else None
+                target_ts = None
+                if thread_ts:
+                    target_ts = thread_ts
+                else:
+                    if lines >= TARGET_LINES:
+                        target_ts = ts
                 postMessage(
                     client,
                     caches.username,
@@ -222,13 +228,18 @@ class call:
                 channel=channel,
                 limit=10,
             )
-            if history and ts in [m['ts'] for m in history['messages']]:
+            his_in = ts in [m.get('ts') for m in history['messages']]
+            replies = client.web_client.conversations_replies(
+                channel=channel,
+                ts=thread_ts,
+                limit=10,
+            )
+            rep_in = ts in [m.get('ts') for m in replies['messages']]
+            if his_in or rep_in:
                 # **hoge** -> hoge
                 answer = answer.replace('**', '')
-                print('post answer')
                 post(answer)
 
-                print('reactions remove')
                 reactions_remove('loading')
                 del history
 
