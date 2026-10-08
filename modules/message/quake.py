@@ -204,15 +204,12 @@ class call:
                 pass
 
             if lines:
-                quakes = '\n'.join(lines)
-            else:
-                return
-            postMessage(
-                client,
-                prefix,
-                caches.icon_emoji,
-                channel,
-                quakes,
-                thread_ts=thread_ts,
-                unfurl_links=False,
-            )
+                postMessage(
+                    client,
+                    prefix,
+                    caches.icon_emoji,
+                    channel,
+                    '\n'.join(lines),
+                    thread_ts=thread_ts,
+                    unfurl_links=False,
+                )
