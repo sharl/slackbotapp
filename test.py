@@ -121,6 +121,15 @@ class WebClient:
             ],
         }
 
+    def conversations_replies(self, **kwargs):
+        return {
+            "messages": [
+                {
+                    "ts": None,
+                },
+            ],
+        }
+
 
 class Client:
     def __init__(self):
