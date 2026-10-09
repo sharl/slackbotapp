@@ -229,12 +229,14 @@ class call:
                 limit=10,
             )
             his_in = ts in [m.get('ts') for m in history['messages']]
-            replies = client.web_client.conversations_replies(
-                channel=channel,
-                ts=thread_ts,
-                limit=10,
-            )
-            rep_in = ts in [m.get('ts') for m in replies['messages']]
+            rep_in = False
+            if thread_ts:
+                replies = client.web_client.conversations_replies(
+                    channel=channel,
+                    ts=thread_ts,
+                    limit=10,
+                )
+                rep_in = ts in [m.get('ts') for m in replies['messages']]
             if his_in or rep_in:
                 # **hoge** -> hoge
                 answer = answer.replace('**', '')
