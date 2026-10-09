@@ -148,8 +148,11 @@ class call:
                 return
 
             self.model = str()
-            with open(CONFIG) as fd:
-                self.model = fd.read().strip()
+            if 'OLLAMA_MODEL' in os.environ:
+                self.model = os.environ.get('OLLAMA_MODEL')
+            else:
+                with open(CONFIG) as fd:
+                    self.model = fd.read().strip()
 
             self.mode = 'think'
             if '検索' in prompt or 'まとめて' in prompt:
