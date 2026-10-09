@@ -99,6 +99,10 @@ class call:
                     },
                     keep_alive='10m',
                 )
+                if response.get('eval_duration'):
+                    rate = response['eval_count'] / response['eval_duration'] * 1e9
+                    print(f"eval rate: {rate:.2f} tok/s")
+
                 return response.get('response', 'わかりません')
             except Exception as e:
                 return f'search Ollamaエラー: {str(e)}'
