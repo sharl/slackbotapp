@@ -107,10 +107,12 @@ class WebClient:
             pass
 
     def reactions_add(self, **kwargs):
-        print('reactions_add', kwargs)
+        # print('reactions_add', kwargs)
+        pass
 
     def reactions_remove(self, **kwargs):
-        print('reactions_remove', kwargs)
+        # print('reactions_remove', kwargs)
+        pass
 
     def conversations_history(self, **kwargs):
         return {
