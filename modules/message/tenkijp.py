@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
+import os
 import subprocess
+
+import requests
+from bs4 import BeautifulSoup as bs
 
 from modules import postMessage
 
@@ -26,6 +31,38 @@ class call:
 
             if not tenkijp:
                 return
+
+            f = os.path.join(os.environ['HOME'], '.tenkijp')
+            if os.path.exists(f):
+                j = {}
+                with open(f) as fd:
+                    j = json.load(fd)
+                if loc in j:
+                    u = j[loc].removesuffix('10days.html')
+
+                    ld_data = None
+                    with requests.get(u, timeout=10) as r:
+                        soup = bs(r.content.decode('utf-8'), 'html.parser')
+                        for s in soup.find_all('script', type='application/ld+json'):
+                            if s.string:
+                                try:
+                                    data = json.loads(s.string)
+                                    if data.get('@id') == u + '#indexes':
+                                        ld_data = data
+                                        break
+                                except json.JSONDecodeError:
+                                    pass
+
+                    lines = []
+                    f = ''
+                    if ld_data:
+                        cols = ld_data.get('mainEntity', {}).get('csvw:tableSchema', {}).get('csvw:columns', [])
+                        for col in cols:
+                            line = f"{col['csvw:name']} {col['csvw:cells'][0]['csvw:value']}"
+                            lines.append(line.replace('今日の', '').replace('指数', ''))
+                        f = ' '.join(lines)
+                    t = tenkijp.splitlines()
+                    tenkijp = '\n'.join([t[0], f] + t[1:])
 
             postMessage(
                 client,
