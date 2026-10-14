@@ -18,7 +18,7 @@ TARGET_LINES = 10
 
 
 class call:
-    """はむ、<質問> : Ollama を使用して回答します 「検索」「まとめて」という文字があると検索結果を元に回答を生成します"""
+    """はむ、<質問> : Ollama を使用して回答します 「検索」「まとめ」という文字があると検索結果を元に回答を生成します"""
     def __init__(self, client, req, options=None, caches={}):
         item = req.payload['event']
         text = item['text']
@@ -155,7 +155,7 @@ class call:
                     self.model = fd.read().strip()
 
             self.mode = 'think'
-            if '検索' in prompt or 'まとめて' in prompt:
+            if '検索' in prompt or 'まとめ' in prompt:
                 self.mode = 'search'
 
             print(f'>>> now model {self.model} mode {self.mode}')
