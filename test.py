@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import io
 import importlib
 import json
 import mimetypes
 import os
 import re
+import subprocess
 import sys
 import tempfile
 
+from PIL import Image
 from libsixel.encoder import Encoder
 import requests
 
@@ -92,9 +95,20 @@ class WebClient:
                 url = b.get('image_url')
                 if url:
                     with requests.get(url, timeout=10) as r:
-                        print(r, url)
+                        cols = int(subprocess.check_output(['tput', 'cols']).decode().strip())
+                        lines = int(subprocess.check_output(['tput', 'lines']).decode().strip())
+                        # print(f'{cols=} {lines=}')
+
+                        image = Image.open(io.BytesIO(r.content))
+                        # print(image.size)
+                        iw, ih = image.size
+                        ratio = (lines + 11) * 16 / ih
+                        # print(f'{ratio=}')
+                        img = image.resize((int(iw * ratio), int(ih * ratio)), Image.Resampling.LANCZOS)
+                        # print(img.size)
+
                         with tempfile.NamedTemporaryFile(mode='wb') as t:
-                            t.write(r.content)
+                            img.save(t.name, 'PNG')
                             self.encoder.encode(t.name)
 
     def files_upload_v2(self, **kwargs):
