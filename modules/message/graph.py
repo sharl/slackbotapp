@@ -15,6 +15,7 @@ from modules import uploadFile
 font_prop = FontProperties(fname='/usr/share/fonts/truetype/migmix/migu-1p-regular.ttf')
 mpl.rcParams["font.family"] = font_prop.get_name()
 
+AQC_OK = [0, 1]
 HEAT = 25
 COLD = 0
 
@@ -103,7 +104,7 @@ class call:
                                         # 6 障害のため欠測
                                         # 7 この要素の観測はしていない
                                         v, c = data[tim][param]
-                                        if c in [0, 1]:
+                                        if c in AQC_OK:
                                             time_data[tim] = v
                                         else:
                                             time_data[tim] = None
@@ -140,10 +141,12 @@ class call:
                         mpl.rcParams['axes.ymargin'] = 0
 
                         # 10分置きに存在するはずのデータがない場合 time_data 補完
+                        # 雪の場合は10分置きではなく1時間なのでステップを変更
                         def fill_lack_time(series: dict) -> dict:
                             begin = time.perf_counter()
+                            step = 10000 if param.startswith('snow') else 1000
 
-                            r = range(int(min(series)), int(max(series)) + 1000, 1000)
+                            r = range(int(min(series)), int(max(series)) + step, step)
                             print(r)
                             for d in r:
                                 # skip illegal minute
