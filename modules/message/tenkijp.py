@@ -61,8 +61,11 @@ class call:
                             line = f"{col['csvw:name']} {col['csvw:cells'][0]['csvw:value']}"
                             lines.append(line.replace('今日の', '').replace('指数', ''))
                         f = ' '.join(lines)
-                    t = tenkijp.splitlines()
-                    tenkijp = '\n'.join([t[0], f] + t[1:])
+                    tail = tenkijp.splitlines()
+                    head = [tail[0]]
+                    if f:
+                        head.append(f)
+                    tenkijp = '\n'.join(head + tail[1:])
 
             postMessage(
                 client,
