@@ -41,8 +41,11 @@ class call:
                     u = j[loc].removesuffix('10days.html')
 
                     ld_data = None
+                    indexes = None
                     with requests.get(u, timeout=10) as r:
                         soup = bs(r.content.decode('utf-8'), 'html.parser')
+
+                        # application/ld+json
                         for s in soup.find_all('script', type='application/ld+json'):
                             if s.string:
                                 try:
@@ -53,14 +56,27 @@ class call:
                                 except json.JSONDecodeError:
                                     pass
 
-                    lines = []
+                        # indexes-point-today
+                        lines = []
+                        i = soup.find(id='indexes-point-today')
+                        if i:
+                            for s in i.find_all('div'):
+                                class_ = s.get('class')[-1]
+                                if class_ in ['title', 'telop']:
+                                    lines.append(s.text)
+                        indexes = ' '.join(lines)
+
                     f = ''
                     if ld_data:
+                        lines = []
                         cols = ld_data.get('mainEntity', {}).get('csvw:tableSchema', {}).get('csvw:columns', [])
                         for col in cols:
                             line = f"{col['csvw:name']} {col['csvw:cells'][0]['csvw:value']}"
                             lines.append(line.replace('今日の', '').replace('指数', ''))
                         f = ' '.join(lines)
+                    elif indexes:
+                        f = indexes
+
                     tail = tenkijp.splitlines()
                     head = [tail[0]]
                     if f:
