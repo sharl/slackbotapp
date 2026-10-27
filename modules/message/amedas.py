@@ -424,6 +424,7 @@ class call:
                 weathers = {
                     '晴': ':sunny:',
                     '曇': ':cloud:',
+                    "霧": ':fog:',
                     '雨': ':umbrella_with_rain_drops:',
                     'みぞれ': ':shaved_ice:',
                     '雪': ':snowman:',
