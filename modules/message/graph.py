@@ -75,6 +75,7 @@ class call:
             if r and r.status_code == 200:
                 data = r.json()
                 # dirty hack
+                data['50476']['kjName'] = '菊川'
                 data['67326']['kjName'] = '広島県府中市'
                 locs = []
                 for k in data:
