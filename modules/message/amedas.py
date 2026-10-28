@@ -32,7 +32,8 @@ class Amedas:
                     lat = deg2dec(table[code]['lat'])
                     lng = deg2dec(table[code]['lon'])
                     elem = table[code]['elems']
-                    if elem[0] == '1':
+                    # 気温 降水量 風向 風速 日照時間 積雪深 湿度 気圧
+                    if elem[0] == '1' or elem[5] == '1':
                         maps[code] = (name, lat, lng)
 
     def getLocation(self, name, airports={}):
