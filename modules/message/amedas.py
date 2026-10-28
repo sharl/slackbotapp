@@ -50,6 +50,8 @@ class Amedas:
             for code in maps:
                 if maps[code][0] == _name:
                     locs[code] = maps[code]
+                elif _name == '菊川':
+                    locs[_name] = maps['50476']
             if _name in airports:
                 _code = airports[_name]
                 locs[_code] = maps[_code]
