@@ -320,8 +320,9 @@ class call:
                                                 m = re.match(r'^(.*?)（', tds[3].text)
                                                 if m:
                                                     locs.append(m[1])
-                                        loc = ' '.join(locs)
-                                        break
+                                        if locs:
+                                            loc = ' '.join(locs)
+                                            break
 
                 print('<<<', loc, _loc)
 
