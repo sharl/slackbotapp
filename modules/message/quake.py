@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime as dt
 import requests
 from bs4 import BeautifulSoup
 
@@ -124,7 +125,11 @@ class call:
                     if ii < ti:
                         continue
                     link = _dt.a.get('href')
-                    lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
+
+                    _tim = dt.strptime(link.split('/')[-1].split('.')[0], '%Y%m%d%H%M%S')
+                    stime = _tim.strftime('%Y年%m月%d日 %H時%M分ごろ')
+
+                    lines.append(f'{stime} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
 
                     if len(lines) >= limit:
                         break
@@ -185,8 +190,12 @@ class call:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
                     link = _dt.a.get('href')
+
+                    _tim = dt.strptime(link.split('/')[-1].split('.')[0], '%Y%m%d%H%M%S')
+                    stime = _tim.strftime('%Y年%m月%d日 %H時%M分ごろ')
+
                     if loc in _anm.text:
-                        lines.append(f'{_dt.text} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
+                        lines.append(f'{stime} <{link}|{_anm.text}> M{_mag.text} 震度{_int.text}')
                         if len(lines) >= limit:
                             break
 
