@@ -185,7 +185,7 @@ class call:
                     )
                     return
 
-                limit = 10
+                limit = 5
                 for tr in trs:
                     tds = tr.find_all('td')
                     _dt, _anm, _mag, _int = tds
