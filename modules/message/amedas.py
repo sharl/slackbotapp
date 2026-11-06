@@ -345,7 +345,7 @@ class call:
 
                     # ------------------------------------------------------------
                     if _loc.startswith(tuple(_keys)):
-                        regex = re.compile(r'(-?[\d\.]+)度')
+                        regex = re.compile(r'(-?[\d\.]+)[度|cm]')
                         m = [float(v) for v in re.findall(regex, ' '.join(lines))]
                         if m:
                             order = True if _loc in ['最高気温', '最低気温高', '積雪深'] else False
